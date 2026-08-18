@@ -1,3 +1,4 @@
+use std::process::Command;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -15,11 +16,29 @@ pub fn capture_screen_slide() -> Result<ScreenSlideSnapshot, String> {
         .map_err(|e| e.to_string())?
         .as_millis() as u64;
 
+    let temp_path = format!("/tmp/reality_capture_{}.png", now);
+
+    let status = Command::new("screencapture")
+        .args(["-x", "-C", "-t", "png", &temp_path])
+        .status()
+        .map_err(|e| e.to_string())?;
+
+    if !status.success() {
+        return Err("Failed to capture screen".to_string());
+    }
+
+    let bytes = std::fs::read(&temp_path).map_err(|e| e.to_string())?;
+    let _ = std::fs::remove_file(&temp_path);
+
+    use base64::Engine;
+    let b64 = base64::engine::general_purpose::STANDARD.encode(&bytes);
+    let data_uri = format!("data:image/png;base64,{}", b64);
+
     Ok(ScreenSlideSnapshot {
         timestamp_ms: now,
         width: 1920,
         height: 1080,
-        image_base64: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==".to_string(),
+        image_base64: data_uri,
         format: "png".to_string(),
     })
 }

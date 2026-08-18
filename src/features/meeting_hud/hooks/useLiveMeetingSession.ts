@@ -109,10 +109,48 @@ export function useLiveMeetingSession(config?: LiveMeetingConfig) {
   }, [handleUtteranceUpdate]);
 
   const sendCustomPrompt = useCallback(
-    (promptText: string) => {
-      handleUtteranceUpdate("You", promptText, "mic");
+    (promptText: string, imageUri?: string) => {
+      const userMsg: LiveTranscriptMessage = {
+        id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        speaker: "You",
+        text: promptText,
+        timestamp: elapsedSeconds,
+        imageUri,
+      };
+      setMessages((prev) => [...prev, userMsg]);
+
+      aiIntelligenceService
+        .processUtterance({
+          sessionId: sessionIdRef.current,
+          speaker: "You",
+          text: promptText,
+          channel: "mic",
+        })
+        .then((res) => {
+          if (res.current_suggestion) {
+            setCurrentSuggestion({
+              id: res.current_suggestion.id,
+              title: res.current_suggestion.title,
+              summary: res.current_suggestion.summary,
+              confidence: Math.round(
+                res.current_suggestion.confidence > 1
+                  ? res.current_suggestion.confidence
+                  : res.current_suggestion.confidence * 100
+              ),
+              codeSnippet: res.current_suggestion.code_snippet
+                ? {
+                    lang: res.current_suggestion.code_snippet.lang,
+                    technique: res.current_suggestion.code_snippet.technique ?? undefined,
+                    complexity: res.current_suggestion.code_snippet.complexity ?? undefined,
+                    code: res.current_suggestion.code_snippet.code,
+                  }
+                : undefined,
+            });
+          }
+        })
+        .catch(() => {});
     },
-    [handleUtteranceUpdate]
+    [elapsedSeconds]
   );
 
   const formatTimer = (totalSeconds: number) => {

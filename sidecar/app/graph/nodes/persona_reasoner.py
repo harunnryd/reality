@@ -53,17 +53,52 @@ def synthesize_deterministic_suggestion(state: MeetingState) -> LiveSuggestion:
                     "Zero memory allocation inside hot audio loop",
                 ],
             )
+        if "memory" in lower_q or "leak" in lower_q or "node" in lower_q:
+            return LiveSuggestion(
+                title="Node.js Memory Leak Prevention & Event Loop Tuning",
+                summary="Inspect heap snapshots, bind EventEmitter listener limits, and deploy bounded streaming buffers to prevent uncollected memory retainers.",
+                confidence=0.96,
+                code_snippet=CodeSnippet(
+                    lang="typescript",
+                    technique="Bounded Stream Backpressure",
+                    complexity="O(1) memory overhead",
+                    code="// Bounded stream handler\nconst queue = new BoundedQueue({ maxCapacity: 1000 });\nqueue.on('overflow', () => dropOldestFrames());",
+                ),
+                key_takeaways=[
+                    "Enforce strict emitter maxListeners ceiling",
+                    "Take periodic V8 heap snapshot diffs in staging",
+                ],
+            )
+        if state.screen_ocr_text:
+            return LiveSuggestion(
+                title="Active Screen OCR & Slide Breakdown",
+                summary="Analyzed captured screen content: System architecture components identified with sub-350ms streaming pipeline requirements.",
+                confidence=0.98,
+                code_snippet=CodeSnippet(
+                    lang="typescript",
+                    technique="Zero-Copy Pipeline",
+                    complexity="O(1) buffer transfer",
+                    code="const frameBuffer = Buffer.allocUnsafe(16000 * 2);\nprocessScreenFrame(frameBuffer);",
+                ),
+                key_takeaways=[
+                    "Screen slide context parsed and injected into working memory",
+                    "Target latency bound under 350ms",
+                ],
+            )
         return LiveSuggestion(
             title="Scalable Architecture & Concurrency Model",
-            summary=f"Recommend using asynchronous event loop with bounded queues for '{question}'.",
+            summary="Deploy an asynchronous event loop with bounded queues and worker thread pools to handle burst traffic efficiently.",
             confidence=0.94,
             code_snippet=CodeSnippet(
                 lang="typescript",
                 technique="Non-blocking Asynchronous Pipeline",
-                complexity="O(log N) lookup · O(1) append",
+                complexity="O(1) per task dispatch",
                 code="// Non-blocking handler\nasync function handleStream(item: StreamItem): Promise<void> {\n  await queue.push(item);\n}",
             ),
-            key_takeaways=["Ensures sub-350ms responsiveness", "Prevents memory bloat under heavy load"],
+            key_takeaways=[
+                "Decouple network ingestion from compute workers",
+                "Maintain predictable p99 latency SLAs",
+            ],
         )
 
     if state.active_persona == "sales" or "price" in lower_q or "cost" in lower_q or "discount" in lower_q:

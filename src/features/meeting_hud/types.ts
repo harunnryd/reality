@@ -6,6 +6,7 @@ export interface LiveTranscriptMessage {
   text: string;
   timestamp: number;
   isPartial?: boolean;
+  imageUri?: string;
 }
 
 export interface LiveAiSuggestion {

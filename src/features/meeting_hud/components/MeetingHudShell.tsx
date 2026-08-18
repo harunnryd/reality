@@ -48,6 +48,7 @@ export const MeetingHudShell: React.FC<MeetingHudShellProps> = ({
   const [inputPrompt, setInputPrompt] = React.useState("");
   const [isOcrScanning, setIsOcrScanning] = React.useState(false);
   const [attachedScreenshot, setAttachedScreenshot] = React.useState<string | null>(null);
+  const [attachedImageUri, setAttachedImageUri] = React.useState<string | null>(null);
   const [copiedCode, setCopiedCode] = React.useState(false);
 
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
@@ -92,6 +93,7 @@ export const MeetingHudShell: React.FC<MeetingHudShellProps> = ({
       const snapshot = await visionService.captureScreenSlide();
       if (snapshot.image_base64) {
         setAttachedScreenshot(`Slide OCR (${snapshot.width}x${snapshot.height})`);
+        setAttachedImageUri(snapshot.image_base64);
       }
     } catch {
       setAttachedScreenshot("Active Window OCR Capture");
@@ -108,13 +110,14 @@ export const MeetingHudShell: React.FC<MeetingHudShellProps> = ({
     e.preventDefault();
     if (!inputPrompt.trim() && !attachedScreenshot) return;
 
-    const fullPrompt = attachedScreenshot
-      ? `[${attachedScreenshot}] ${inputPrompt}`
-      : inputPrompt;
+    const fullPrompt = inputPrompt.trim()
+      ? inputPrompt.trim()
+      : (attachedScreenshot || "Analyze active screen content");
 
-    sendCustomPrompt(fullPrompt);
+    sendCustomPrompt(fullPrompt, attachedImageUri ?? undefined);
     setInputPrompt("");
     setAttachedScreenshot(null);
+    setAttachedImageUri(null);
   };
 
   return (
@@ -338,16 +341,32 @@ export const MeetingHudShell: React.FC<MeetingHudShellProps> = ({
                   <div
                     style={{
                       ...typography.scale.bodyMedium,
-                      padding: "7px 13px",
+                      padding: "8px 12px",
                       borderRadius: "14px 14px 2px 14px",
                       background: "linear-gradient(180deg, #0077ED 0%, #0066D6 100%)",
                       boxShadow: "0 2px 8px rgba(0, 113, 227, 0.25)",
                       color: "#FFFFFF",
-                      maxWidth: "75%",
+                      maxWidth: "80%",
                       wordBreak: "break-word",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 6,
                     }}
                   >
-                    {m.text}
+                    {m.imageUri && (
+                      <img
+                        src={m.imageUri}
+                        alt="Screen Slide"
+                        style={{
+                          width: "100%",
+                          maxHeight: 180,
+                          borderRadius: 8,
+                          objectFit: "cover",
+                          border: "1px solid rgba(255, 255, 255, 0.3)",
+                        }}
+                      />
+                    )}
+                    {m.text && <div>{m.text}</div>}
                   </div>
                 </div>
               );
@@ -579,23 +598,45 @@ export const MeetingHudShell: React.FC<MeetingHudShellProps> = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                padding: "3px 7px",
-                borderRadius: 6,
-                backgroundColor: "rgba(88, 86, 214, 0.08)",
-                border: "1px solid rgba(88, 86, 214, 0.2)",
+                padding: "4px 8px",
+                borderRadius: 8,
+                backgroundColor: "rgba(88, 86, 214, 0.10)",
+                border: "1px solid rgba(88, 86, 214, 0.25)",
                 color: "#5856D6",
                 marginBottom: 6,
+                gap: 8,
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                <ImageIcon size={11} />
-                <span>{attachedScreenshot}</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                {attachedImageUri ? (
+                  <img
+                    src={attachedImageUri}
+                    alt="OCR Thumbnail"
+                    style={{
+                      width: 44,
+                      height: 26,
+                      borderRadius: 4,
+                      objectFit: "cover",
+                      border: "1px solid rgba(88, 86, 214, 0.35)",
+                    }}
+                  />
+                ) : (
+                  <ImageIcon size={14} />
+                )}
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <span style={{ fontSize: 11, fontWeight: 600 }}>{attachedScreenshot}</span>
+                  <span style={{ fontSize: 10, color: "#64748B" }}>Active screen context attached</span>
+                </div>
               </div>
               <button
-                onClick={() => setAttachedScreenshot(null)}
-                style={{ border: "none", background: "transparent", cursor: "pointer", padding: 0, color: "#86868B" }}
+                type="button"
+                onClick={() => {
+                  setAttachedScreenshot(null);
+                  setAttachedImageUri(null);
+                }}
+                style={{ border: "none", background: "transparent", cursor: "pointer", padding: 2, color: "#86868B" }}
               >
-                <X size={11} />
+                <X size={13} />
               </button>
             </div>
           )}

@@ -34,3 +34,8 @@ class Dispatcher:
             )
         result = await handler(request.params)
         return RpcResponse.ok(request.id, result)
+
+    async def dispatch_notification(self, method: str, params: dict[str, Any]) -> None:
+        handler = self._handlers.get(method)
+        if handler is not None:
+            await handler(params)

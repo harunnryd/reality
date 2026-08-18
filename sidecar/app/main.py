@@ -110,6 +110,14 @@ async def handle_line(line: str) -> None:
         log(f"parse error: {exc}")
         return
 
+    if "id" not in payload:
+        try:
+            notification = RpcNotification.model_validate(payload)
+            await dispatcher.dispatch_notification(notification.method, notification.params)
+        except Exception as exc:
+            log(f"notification error: {exc}")
+        return
+
     try:
         request = RpcRequest.model_validate(payload)
     except ValidationError as exc:
@@ -117,7 +125,7 @@ async def handle_line(line: str) -> None:
         write_message(
             RpcResponse(
                 id=str(payload.get("id", "")),
-                error={"code": -32600, "message": "Invalid Request", "data": str(exc)},
+                error={"code": -32600, "message": "Invalid Request", "data": {"error": str(exc)}},
             )
         )
         return

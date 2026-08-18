@@ -1,0 +1,44 @@
+# Operating System
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Dependencies & Build Outputs
+node_modules/
+dist/
+dist-ssr/
+build/
+package/
+*.tsbuildinfo
+
+# Vite & Bundler Temp
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Environment & Credentials
+.env
+.env.*
+!.env.example
+
+# Tauri & Rust
+/src-tauri/target/
+/src-tauri/gen/
+**/*.rs.bk
+
+# Python Sidecar
+/sidecar/.venv/
+/sidecar/.pytest_cache/
+/sidecar/.mypy_cache/
+/sidecar/.ruff_cache/
+/sidecar/**/__pycache__/
+/sidecar/*.egg-info/
+/sidecar/dist/
+/sidecar/build/
+**/__pycache__/
+*.py[cod]
+
+# Logs & Testing
+*.log
+coverage/
+.nyc_output/

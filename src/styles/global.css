@@ -1,0 +1,77 @@
+:root {
+  --font-size-title-lg: 20px;
+  --font-size-title-md: 16px;
+  --font-size-title-sm: 14px;
+  --font-size-body-lg: 14px;
+  --font-size-body-md: 13px;
+  --font-size-body-sm: 12px;
+  --font-size-button: 13px;
+  --font-size-badge: 11px;
+  --font-size-caption: 11px;
+  --font-size-micro: 10px;
+
+  --line-height-title-lg: 26px;
+  --line-height-title-md: 22px;
+  --line-height-title-sm: 20px;
+  --line-height-body-lg: 20px;
+  --line-height-body-md: 18px;
+  --line-height-body-sm: 16px;
+  --line-height-caption: 14px;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+body > #root > .radix-themes {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Display",
+    "SF Pro Text",
+    "Helvetica Neue",
+    sans-serif;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+code,
+pre,
+kbd {
+  font-family:
+    ui-monospace,
+    "SF Mono",
+    "Menlo",
+    "Monaco",
+    "Cascadia Code",
+    "Fira Code",
+    monospace;
+}
+
+.rt-DropdownMenuContent,
+.rt-PopoverContent,
+.rt-DialogContent,
+[data-radix-popper-content-wrapper],
+[role="menu"] {
+  background-color: #FFFFFF !important;
+  background: #FFFFFF !important;
+  opacity: 1 !important;
+}

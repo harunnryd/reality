@@ -20,6 +20,7 @@ import {
   systemService,
   shortcutsService,
   ShortcutDefinition,
+  deepgramService,
 } from "@/services";
 import { springEase } from "@/styles/theme";
 
@@ -98,12 +99,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const [shortcutsList, setShortcutsList] = React.useState<ShortcutDefinition[]>([]);
   const [sidecarStatus, setSidecarStatus] = React.useState<SidecarHealthStatus | null>(null);
   const [customApiKey, setCustomApiKey] = React.useState("");
+  const [deepgramApiKey, setDeepgramApiKey] = React.useState(deepgramService.getApiKey());
   const [hasStoredKey, setHasStoredKey] = React.useState(false);
   const [wipeRamOnFinish, setWipeRamOnFinish] = React.useState(true);
   const [savedToast, setSavedToast] = React.useState(false);
 
   React.useEffect(() => {
     if (isOpen) {
+      setDeepgramApiKey(deepgramService.getApiKey());
       audioService.listInputDevices().then((devices) => {
         if (devices.length > 0) setAvailableMics(devices);
       });
@@ -131,6 +134,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   };
 
   const handleSave = async () => {
+    if (deepgramApiKey.trim()) {
+      void deepgramService.configure(deepgramApiKey.trim());
+    }
     if (customApiKey.trim()) {
       try {
         await credentialsService.validateAndStoreKey(customApiKey.trim());
@@ -444,6 +450,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     </label>
                     <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
                       {[
+                        { id: "deepgram_nova2", name: "Deepgram Nova-2 (Live WS)", latency: "<180ms p99" },
                         { id: "whisper_sub350", name: "Whisper Sub-350ms (Cloud)", latency: "38ms p99" },
                         { id: "whisper_coreml", name: "Whisper CoreML (On-Device)", latency: "110ms" },
                       ].map((eng) => (
@@ -464,6 +471,38 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         </div>
                       ))}
                     </div>
+                  </div>
+
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <label style={{ fontSize: 11, fontWeight: 700, color: "#86868B", textTransform: "uppercase" }}>
+                        Deepgram Nova-2 API Key
+                      </label>
+                      {deepgramApiKey && (
+                        <span style={{ fontSize: 10.5, color: "#10B981", fontWeight: 600 }}>
+                          ✓ Live WebSocket Active
+                        </span>
+                      )}
+                    </div>
+                    <input
+                      type="password"
+                      placeholder="8aa709d649248fe8d11eec..."
+                      value={deepgramApiKey}
+                      onChange={(e) => setDeepgramApiKey(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "7px 10px",
+                        borderRadius: 7,
+                        border: "1px solid rgba(0, 0, 0, 0.1)",
+                        fontSize: 12,
+                        marginTop: 6,
+                        outline: "none",
+                        fontFamily: "ui-monospace, monospace",
+                      }}
+                    />
+                    <span style={{ fontSize: 10.5, color: "#86868B", marginTop: 4, display: "block" }}>
+                      Ultra low-latency live streaming speech transcription
+                    </span>
                   </div>
 
                   <div>

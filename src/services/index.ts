@@ -10,4 +10,4 @@ export * from "./shortcutsService";
 export * from "./foregroundGate";
 export * from "./documentService";
 export * from "./aiIntelligenceService";
-export * from "./speechRecognitionService";
+export * from "./deepgramService";

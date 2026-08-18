@@ -30,6 +30,21 @@ from app.rpc.schema import RpcRequest
             {"session_id": "rpc-test-1"},
             "status",
         ),
+        (
+            "stt.configure",
+            {"api_key": ""},
+            "status",
+        ),
+        (
+            "stt.stop",
+            {},
+            "status",
+        ),
+        (
+            "audio.chunk",
+            {"pcm_base64": ""},
+            "status",
+        ),
     ],
 )
 def test_rpc_dispatch_roundtrip_table(method: str, params: dict, expected_key: str) -> None:

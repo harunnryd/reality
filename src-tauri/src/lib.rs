@@ -58,6 +58,8 @@ pub fn run() {
             commands::process_audio_chunk,
             commands::apply_stealth_mode,
             commands::capture_screen_slide,
+            commands::configure_stt,
+            commands::stop_stt,
             commands::has_openai_key,
             commands::delete_openai_key,
             commands::validate_and_store_openai_key,

@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use base64::Engine;
 use serde::Deserialize;
 use serde_json::{json, Value};
 use tauri::{State, WebviewWindow};
@@ -187,6 +188,47 @@ pub async fn process_audio_chunk(
 ) -> Result<bool, String> {
     let (_pcm, is_speech) = pipeline.process_samples(&samples);
     Ok(is_speech)
+}
+
+#[tauri::command]
+pub async fn configure_stt(
+    sidecar: State<'_, Arc<SidecarClient>>,
+    pipeline: State<'_, Arc<AudioPipeline>>,
+    api_key: String,
+) -> Result<Value, String> {
+    let result = sidecar
+        .call("stt.configure", json!({ "api_key": api_key }))
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let sidecar_clone = Arc::clone(&*sidecar);
+    let mut rx = pipeline.subscribe_pcm();
+
+    tokio::spawn(async move {
+        let engine = base64::engine::general_purpose::STANDARD;
+        while let Ok(pcm_samples) = rx.recv().await {
+            let bytes: Vec<u8> = pcm_samples
+                .iter()
+                .flat_map(|s| s.to_le_bytes())
+                .collect();
+            let encoded = engine.encode(&bytes);
+            let _ = sidecar_clone
+                .call("audio.chunk", json!({ "pcm_base64": encoded }))
+                .await;
+        }
+    });
+
+    Ok(result)
+}
+
+#[tauri::command]
+pub async fn stop_stt(
+    sidecar: State<'_, Arc<SidecarClient>>,
+) -> Result<Value, String> {
+    sidecar
+        .call("stt.stop", json!({}))
+        .await
+        .map_err(|e| e.to_string())
 }
 
 #[tauri::command]

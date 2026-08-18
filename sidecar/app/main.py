@@ -8,11 +8,24 @@ from pydantic import ValidationError
 
 from app.graph.orchestrator import MeetingGraphOrchestrator
 from app.rpc.dispatcher import Dispatcher
-from app.rpc.schema import INTERNAL_ERROR, PARSE_ERROR, RpcError, RpcRequest, RpcResponse
+from app.rpc.schema import INTERNAL_ERROR, PARSE_ERROR, RpcError, RpcNotification, RpcRequest, RpcResponse
 from app.services import credentials_service
+from app.services.stt_engine import DeepgramStreamingSTT
 
 dispatcher = Dispatcher()
 orchestrator = MeetingGraphOrchestrator()
+
+
+def write_message(message: RpcResponse | RpcNotification) -> None:
+    sys.stdout.write(message.model_dump_json(exclude_none=True) + "\n")
+    sys.stdout.flush()
+
+
+def emit_notification(method: str, params: dict) -> None:
+    write_message(RpcNotification(method=method, params=params))
+
+
+stt_engine = DeepgramStreamingSTT(emit_notification)
 
 
 @dispatcher.method("system.ping")
@@ -67,13 +80,28 @@ async def handle_reset_session(params: dict) -> dict:
     return {"status": "ok", "session_id": session_id}
 
 
+@dispatcher.method("stt.configure")
+async def handle_stt_configure(params: dict) -> dict:
+    api_key = params.get("api_key", "")
+    return await stt_engine.configure(api_key)
+
+
+@dispatcher.method("stt.stop")
+async def handle_stt_stop(params: dict) -> dict:
+    return await stt_engine.stop()
+
+
+@dispatcher.method("audio.chunk")
+async def handle_audio_chunk(params: dict) -> dict:
+    pcm_base64 = params.get("pcm_base64", "")
+    session_id = params.get("session_id", "default")
+    if pcm_base64:
+        stt_engine.feed_audio(pcm_base64)
+    return {"status": "ok"}
+
+
 def log(message: str) -> None:
     print(message, file=sys.stderr, flush=True)
-
-
-def write_message(message: RpcResponse) -> None:
-    sys.stdout.write(message.model_dump_json(exclude_none=True) + "\n")
-    sys.stdout.flush()
 
 
 async def handle_line(line: str) -> None:
@@ -97,7 +125,7 @@ async def handle_line(line: str) -> None:
 
     try:
         response = await dispatcher.dispatch(request)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         log(f"handler error for {request.method}: {exc}")
         response = RpcResponse.fail(request.id, INTERNAL_ERROR, str(exc))
 

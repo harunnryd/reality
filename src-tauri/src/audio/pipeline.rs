@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
+use tokio::sync::broadcast;
 
 use crate::audio::devices::resolve_best_device;
 use crate::audio::resampler::LinearResampler;
@@ -29,6 +30,7 @@ pub struct AudioPipeline {
     resampler: Arc<Mutex<LinearResampler>>,
     vad: Arc<Mutex<VadDetector>>,
     speaker: Arc<SpeakerCapture>,
+    pcm_tx: broadcast::Sender<Vec<i16>>,
 }
 
 impl Default for AudioPipeline {
@@ -39,12 +41,14 @@ impl Default for AudioPipeline {
 
 impl AudioPipeline {
     pub fn new() -> Self {
+        let (pcm_tx, _) = broadcast::channel(256);
         Self {
             is_running: Arc::new(AtomicBool::new(false)),
             frames_count: Arc::new(AtomicU64::new(0)),
             resampler: Arc::new(Mutex::new(LinearResampler::new(48_000, 1))),
             vad: Arc::new(Mutex::new(VadDetector::new())),
             speaker: Arc::new(SpeakerCapture::new()),
+            pcm_tx,
         }
     }
 
@@ -111,7 +115,15 @@ impl AudioPipeline {
             false
         };
 
+        if is_speech && !pcm.is_empty() {
+            let _ = self.pcm_tx.send(pcm.clone());
+        }
+
         (pcm, is_speech)
+    }
+
+    pub fn subscribe_pcm(&self) -> broadcast::Receiver<Vec<i16>> {
+        self.pcm_tx.subscribe()
     }
 
     pub fn is_active(&self) -> bool {

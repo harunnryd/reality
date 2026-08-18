@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { LiveTranscriptMessage, LiveAiSuggestion, LiveMeetingConfig } from "../types";
 import { Meeting } from "../../launcher/types";
-import { aiIntelligenceService, visionService, audioService, speechRecognitionService } from "@/services";
+import { aiIntelligenceService, visionService, audioService, deepgramService } from "@/services";
 
 export function useLiveMeetingSession(config?: LiveMeetingConfig) {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -65,21 +65,19 @@ export function useLiveMeetingSession(config?: LiveMeetingConfig) {
   useEffect(() => {
     if (isMicActive) {
       void audioService.startSession({ capture_system_audio: true, vad_enabled: true });
-      speechRecognitionService.start((text, isFinal) => {
-        if (isFinal && text.trim()) {
-          handleUtteranceUpdate("You (Live Mic)", text.trim(), "mic");
-        }
-      });
+      if (deepgramService.isConfigured()) {
+        void deepgramService.configure();
+      }
     } else {
-      speechRecognitionService.stop();
+      void deepgramService.stop();
       void audioService.stopSession();
     }
 
     return () => {
-      speechRecognitionService.stop();
+      void deepgramService.stop();
       void audioService.stopSession();
     };
-  }, [isMicActive, handleUtteranceUpdate]);
+  }, [isMicActive]);
 
   useEffect(() => {
     let unlistenTranscript: (() => void) | undefined;

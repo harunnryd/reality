@@ -9,3 +9,4 @@ export * from "./systemService";
 export * from "./shortcutsService";
 export * from "./foregroundGate";
 export * from "./documentService";
+export * from "./aiIntelligenceService";

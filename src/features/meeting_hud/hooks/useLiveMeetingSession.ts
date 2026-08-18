@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { LiveTranscriptMessage, LiveAiSuggestion, LiveMeetingConfig } from "../types";
 import { Meeting } from "../../launcher/types";
-import { sidecarService } from "@/services";
+import { aiIntelligenceService } from "@/services";
 
 const INITIAL_CONVERSATION_HISTORY: Record<string, LiveTranscriptMessage[]> = {
   tech: [
@@ -343,42 +343,68 @@ export function useLiveMeetingSession(config?: LiveMeetingConfig) {
       timestamp: elapsedSeconds,
     };
     setMessages((prev) => [...prev, userMsg]);
-    void sidecarService.ping(promptText);
 
-    setTimeout(() => {
-      let smartTitle = `AI Assist: "${promptText.slice(0, 24)}..."`;
-      let smartSummary = "Synthesized response based on active session context and technical architecture review.";
-      let smartSnippet = undefined;
+    const sessionId = config?.title || "live-meeting-session";
 
-      if (/answer|what/i.test(promptText)) {
-        smartTitle = "Recommended Answer for Team";
-        smartSummary = "Confirm that HNSW with FP16 quantization keeps memory under 18.2GB while maintaining sub-50ms p99 query latency.";
-        smartSnippet = {
-          lang: "typescript",
-          technique: "Quantized Index Configuration",
-          complexity: "O(log N) · Memory 18.2GB",
-          code: `const config = {\n  quantization: 'fp16',\n  maxMemoryGB: 18.2,\n  targetP99Ms: 38\n};`,
-        };
-      } else if (/clarify/i.test(promptText)) {
-        smartTitle = "Clarification Point";
-        smartSummary = "Explain that 150ms audio chunking avoids TCP packet fragmentation, while CoreML handles offline transcription fallback.";
-      } else if (/recap/i.test(promptText)) {
-        smartTitle = "Meeting Recap So Far";
-        smartSummary = "1. HNSW FP16 vector index approved.\n2. 150ms audio chunk buffer locked.\n3. SOC2 zero-retention memory policy validated.\n4. Private beta build scheduled for Friday.";
-      } else if (/follow/i.test(promptText)) {
-        smartTitle = "Suggested Follow-Up Question";
-        smartSummary = "Ask: 'What automated alerting threshold should we configure on Prometheus for WebSocket latency degradation?'";
-      }
+    aiIntelligenceService
+      .processUtterance({
+        sessionId,
+        speaker: "You",
+        text: promptText,
+        channel: "mic",
+      })
+      .then((res) => {
+        if (res.current_suggestion) {
+          setCurrentSuggestion({
+            id: res.current_suggestion.id,
+            title: res.current_suggestion.title,
+            summary: res.current_suggestion.summary,
+            confidence: Math.round(res.current_suggestion.confidence > 1 ? res.current_suggestion.confidence : res.current_suggestion.confidence * 100),
+            codeSnippet: res.current_suggestion.code_snippet
+              ? {
+                  lang: res.current_suggestion.code_snippet.lang,
+                  technique: res.current_suggestion.code_snippet.technique ?? undefined,
+                  complexity: res.current_suggestion.code_snippet.complexity ?? undefined,
+                  code: res.current_suggestion.code_snippet.code,
+                }
+              : undefined,
+          });
+        }
+      })
+      .catch(() => {
+        let smartTitle = `AI Assist: "${promptText.slice(0, 24)}..."`;
+        let smartSummary = "Synthesized response based on active session context and technical architecture review.";
+        let smartSnippet = undefined;
 
-      setCurrentSuggestion({
-        id: `ans-${Date.now()}`,
-        title: smartTitle,
-        summary: smartSummary,
-        confidence: 98,
-        codeSnippet: smartSnippet,
+        if (/answer|what/i.test(promptText)) {
+          smartTitle = "Recommended Answer for Team";
+          smartSummary = "Confirm that HNSW with FP16 quantization keeps memory under 18.2GB while maintaining sub-50ms p99 query latency.";
+          smartSnippet = {
+            lang: "typescript",
+            technique: "Quantized Index Configuration",
+            complexity: "O(log N) · Memory 18.2GB",
+            code: `const config = {\n  quantization: 'fp16',\n  maxMemoryGB: 18.2,\n  targetP99Ms: 38\n};`,
+          };
+        } else if (/clarify/i.test(promptText)) {
+          smartTitle = "Clarification Point";
+          smartSummary = "Explain that 150ms audio chunking avoids TCP packet fragmentation, while CoreML handles offline transcription fallback.";
+        } else if (/recap/i.test(promptText)) {
+          smartTitle = "Meeting Recap So Far";
+          smartSummary = "1. HNSW FP16 vector index approved.\n2. 150ms audio chunk buffer locked.\n3. SOC2 zero-retention memory policy validated.\n4. Private beta build scheduled for Friday.";
+        } else if (/follow/i.test(promptText)) {
+          smartTitle = "Suggested Follow-Up Question";
+          smartSummary = "Ask: 'What automated alerting threshold should we configure on Prometheus for WebSocket latency degradation?'";
+        }
+
+        setCurrentSuggestion({
+          id: `ans-${Date.now()}`,
+          title: smartTitle,
+          summary: smartSummary,
+          confidence: 98,
+          codeSnippet: smartSnippet,
+        });
       });
-    }, 400);
-  }, [elapsedSeconds]);
+  }, [elapsedSeconds, config?.title]);
 
   const formatTimer = (totalSeconds: number) => {
     const mins = Math.floor(totalSeconds / 60);

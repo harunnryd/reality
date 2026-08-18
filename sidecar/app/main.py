@@ -6,11 +6,13 @@ import sys
 
 from pydantic import ValidationError
 
+from app.graph.orchestrator import MeetingGraphOrchestrator
 from app.rpc.dispatcher import Dispatcher
 from app.rpc.schema import INTERNAL_ERROR, PARSE_ERROR, RpcError, RpcRequest, RpcResponse
 from app.services import credentials_service
 
 dispatcher = Dispatcher()
+orchestrator = MeetingGraphOrchestrator()
 
 
 @dispatcher.method("system.ping")
@@ -21,6 +23,48 @@ async def handle_ping(params: dict) -> dict:
 @dispatcher.method("credentials.validate_openai_key")
 async def handle_validate_openai_key(params: dict) -> dict:
     return await credentials_service.validate_openai_key(params.get("api_key", ""))
+
+
+@dispatcher.method("ai.process_utterance")
+async def handle_process_utterance(params: dict) -> dict:
+    session_id = params.get("session_id", "default")
+    speaker = params.get("speaker", "Speaker")
+    text = params.get("text", "")
+    channel = params.get("channel", "speaker")
+    is_interim = params.get("is_interim", False)
+
+    state = await orchestrator.process_utterance(
+        session_id=session_id,
+        speaker=speaker,
+        text=text,
+        channel=channel,
+        is_interim=is_interim,
+    )
+    return {
+        "moment_action": state.moment_action,
+        "latest_detected_question": state.latest_detected_question,
+        "current_suggestion": state.current_suggestion.model_dump() if state.current_suggestion else None,
+    }
+
+
+@dispatcher.method("ai.finalize_meeting")
+async def handle_finalize_meeting(params: dict) -> dict:
+    session_id = params.get("session_id", "default")
+    state = await orchestrator.finalize_session(session_id)
+    return {
+        "session_id": state.session_id,
+        "title": state.title,
+        "executive_summary": state.executive_summary,
+        "action_items": [a.model_dump() for a in state.action_items],
+        "key_decisions": [d.model_dump() for d in state.key_decisions],
+    }
+
+
+@dispatcher.method("ai.reset_session")
+async def handle_reset_session(params: dict) -> dict:
+    session_id = params.get("session_id", "default")
+    orchestrator.remove_session(session_id)
+    return {"status": "ok", "session_id": session_id}
 
 
 def log(message: str) -> None:

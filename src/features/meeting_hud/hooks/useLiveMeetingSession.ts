@@ -19,46 +19,62 @@ export function useLiveMeetingSession(config?: LiveMeetingConfig) {
     elapsedSecondsRef.current = elapsedSeconds;
   }, [elapsedSeconds]);
 
-  const handleUtteranceUpdate = useCallback((speaker: string, text: string, channel: "mic" | "speaker" = "speaker") => {
-    const userMsg: LiveTranscriptMessage = {
-      id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-      speaker,
-      text,
-      timestamp: elapsedSecondsRef.current,
-    };
-    setMessages((prev) => [...prev, userMsg]);
-
-    aiIntelligenceService
-      .processUtterance({
-        sessionId: sessionIdRef.current,
-        speaker,
-        text,
-        channel,
-      })
-      .then((res) => {
-        if (res.current_suggestion) {
-          setCurrentSuggestion({
-            id: res.current_suggestion.id,
-            title: res.current_suggestion.title,
-            summary: res.current_suggestion.summary,
-            confidence: Math.round(
-              res.current_suggestion.confidence > 1
-                ? res.current_suggestion.confidence
-                : res.current_suggestion.confidence * 100
-            ),
-            codeSnippet: res.current_suggestion.code_snippet
-              ? {
-                  lang: res.current_suggestion.code_snippet.lang,
-                  technique: res.current_suggestion.code_snippet.technique ?? undefined,
-                  complexity: res.current_suggestion.code_snippet.complexity ?? undefined,
-                  code: res.current_suggestion.code_snippet.code,
-                }
-              : undefined,
-          });
+  const handleUtteranceUpdate = useCallback(
+    (speaker: string, text: string, channel: "mic" | "speaker" = "speaker", isFinal: boolean = true) => {
+      const timestamp = elapsedSecondsRef.current;
+      setMessages((prev) => {
+        if (prev.length > 0) {
+          const last = prev[prev.length - 1];
+          if (last && last.speaker === speaker && last.isPartial) {
+            const updated: LiveTranscriptMessage = { ...last, text, timestamp, isPartial: !isFinal };
+            return [...prev.slice(0, -1), updated];
+          }
         }
-      })
-      .catch(() => {});
-  }, []);
+        const newMsg: LiveTranscriptMessage = {
+          id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          speaker,
+          text,
+          timestamp,
+          isPartial: !isFinal,
+        };
+        return [...prev, newMsg];
+      });
+
+      if (isFinal) {
+        aiIntelligenceService
+          .processUtterance({
+            sessionId: sessionIdRef.current,
+            speaker,
+            text,
+            channel,
+          })
+          .then((res) => {
+            if (res.current_suggestion) {
+              setCurrentSuggestion({
+                id: res.current_suggestion.id,
+                title: res.current_suggestion.title,
+                summary: res.current_suggestion.summary,
+                confidence: Math.round(
+                  res.current_suggestion.confidence > 1
+                    ? res.current_suggestion.confidence
+                    : res.current_suggestion.confidence * 100
+                ),
+                codeSnippet: res.current_suggestion.code_snippet
+                  ? {
+                      lang: res.current_suggestion.code_snippet.lang,
+                      technique: res.current_suggestion.code_snippet.technique ?? undefined,
+                      complexity: res.current_suggestion.code_snippet.complexity ?? undefined,
+                      code: res.current_suggestion.code_snippet.code,
+                    }
+                  : undefined,
+              });
+            }
+          })
+          .catch(() => {});
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -83,10 +99,14 @@ export function useLiveMeetingSession(config?: LiveMeetingConfig) {
     let unlistenTranscript: (() => void) | undefined;
     let unlistenSuggestion: (() => void) | undefined;
 
-    listen<{ text: string; speaker?: string }>("transcript.delta", (event) => {
-      console.log("[useLiveMeetingSession] received transcript.delta:", event);
+    listen<{ text: string; speaker?: string; is_final?: boolean }>("transcript.delta", (event) => {
       if (event.payload?.text) {
-        handleUtteranceUpdate(event.payload.speaker || "Speaker", event.payload.text, "speaker");
+        handleUtteranceUpdate(
+          event.payload.speaker || "Meeting (Live)",
+          event.payload.text,
+          "speaker",
+          event.payload.is_final ?? true
+        );
       }
     })
       .then((unsub) => {

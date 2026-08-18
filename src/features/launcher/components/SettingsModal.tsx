@@ -2,11 +2,19 @@ import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
-  SlidersHorizontal,
   Mic,
   Cpu,
   Keyboard,
   Shield,
+  Info,
+  Check,
+  ExternalLink,
+  Eye,
+  EyeOff,
+  Lock,
+  Radio,
+  Volume2,
+  Sparkles,
 } from "lucide-react";
 import { PERSONA_CONFIGS } from "../services/meetingsService";
 import { PersonaMode } from "../types";
@@ -29,7 +37,7 @@ export interface SettingsModalProps {
   onClose: () => void;
 }
 
-type SettingsTab = "general" | "audio" | "models" | "shortcuts" | "about";
+type SettingsTab = "audio" | "models" | "shortcuts" | "stealth" | "about";
 
 const AppleSwitch: React.FC<{
   checked: boolean;
@@ -73,9 +81,8 @@ const AppleSwitch: React.FC<{
 };
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
-  const [activeTab, setActiveTab] = React.useState<SettingsTab>("general");
+  const [activeTab, setActiveTab] = React.useState<SettingsTab>("audio");
   const [defaultPersona, setDefaultPersona] = React.useState<PersonaMode>("tech");
-  const [stealthDefault, setStealthDefault] = React.useState(true);
   const [selectedDisguise, setSelectedDisguise] = React.useState("Reality");
   const [availableDisguises, setAvailableDisguises] = React.useState<string[]>([
     "Reality",
@@ -84,10 +91,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     "Finder",
     "Activity Monitor",
   ]);
-  const [rnNoiseFilter, setRnNoiseFilter] = React.useState(true);
   const [vadThreshold, setVadThreshold] = React.useState(true);
   const [adaptiveNoiseTracking, setAdaptiveNoiseTracking] = React.useState(true);
-  const [speechEngine, setSpeechEngine] = React.useState("whisper_sub350");
   const [selectedMic, setSelectedMic] = React.useState("default");
   const [availableMics, setAvailableMics] = React.useState<AudioInputDevice[]>([
     { id: "default", name: "Default System Microphone", is_default: true },
@@ -100,6 +105,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const [sidecarStatus, setSidecarStatus] = React.useState<SidecarHealthStatus | null>(null);
   const [customApiKey, setCustomApiKey] = React.useState("");
   const [deepgramApiKey, setDeepgramApiKey] = React.useState(deepgramService.getApiKey());
+  const [showDeepgramKey, setShowDeepgramKey] = React.useState(false);
+  const [showCustomKey, setShowCustomKey] = React.useState(false);
   const [hasStoredKey, setHasStoredKey] = React.useState(false);
   const [wipeRamOnFinish, setWipeRamOnFinish] = React.useState(true);
   const [savedToast, setSavedToast] = React.useState(false);
@@ -152,6 +159,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
   if (!isOpen) return null;
 
+  const navItems = [
+    { id: "audio" as SettingsTab, label: "Speech & Audio", icon: Mic, badge: deepgramApiKey ? "Active" : undefined },
+    { id: "models" as SettingsTab, label: "AI Intelligence", icon: Cpu, badge: hasStoredKey ? "Keychain" : undefined },
+    { id: "shortcuts" as SettingsTab, label: "Shortcuts", icon: Keyboard },
+    { id: "stealth" as SettingsTab, label: "Stealth & Privacy", icon: Shield },
+    { id: "about" as SettingsTab, label: "System Health", icon: Info },
+  ];
+
   return (
     <AnimatePresence>
       <div
@@ -164,412 +179,469 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           alignItems: "center",
           justifyContent: "center",
           backgroundColor: "rgba(0, 0, 0, 0.4)",
-          backdropFilter: "blur(8px)",
-          WebkitBackdropFilter: "blur(8px)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
           padding: 24,
           userSelect: "none",
         }}
         onClick={onClose}
       >
         <motion.div
-          initial={{ opacity: 0, scale: 0.96, y: 8 }}
+          initial={{ opacity: 0, scale: 0.97, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.96, y: 8 }}
+          exit={{ opacity: 0, scale: 0.97, y: 10 }}
           transition={{ duration: 0.18, ease: springEase }}
           onClick={(e) => e.stopPropagation()}
           style={{
             width: "100%",
-            maxWidth: 620,
+            maxWidth: 680,
+            height: 480,
             backgroundColor: "#FFFFFF",
             borderRadius: 16,
-            border: "1px solid rgba(0, 0, 0, 0.08)",
-            boxShadow: "0 24px 48px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.06)",
-            overflow: "hidden",
+            border: "1px solid rgba(0, 0, 0, 0.1)",
+            boxShadow: "0 32px 64px -16px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.04)",
             display: "flex",
             flexDirection: "column",
-            height: 500,
+            overflow: "hidden",
           }}
         >
           <div
             style={{
-              padding: "14px 18px",
-              borderBottom: "1px solid rgba(0, 0, 0, 0.06)",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              backgroundColor: "#FAFAFA",
+              padding: "12px 16px",
+              borderBottom: "1px solid rgba(0, 0, 0, 0.06)",
+              backgroundColor: "rgba(249, 249, 251, 0.95)",
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <div
                 style={{
-                  width: 26,
-                  height: 26,
+                  width: 22,
+                  height: 22,
                   borderRadius: 6,
-                  backgroundColor: "rgba(0, 113, 227, 0.1)",
+                  backgroundColor: "#0071E3",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  color: "#0071E3",
+                  boxShadow: "0 2px 4px rgba(0, 113, 227, 0.3)",
                 }}
               >
-                <SlidersHorizontal size={14} />
+                <Sparkles size={12} color="#FFFFFF" />
               </div>
-              <h3 style={{ margin: 0, fontSize: 13.5, fontWeight: 650, color: "#1D1D1F" }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#1D1D1F", letterSpacing: -0.2 }}>
                 Reality Preferences
-              </h3>
+              </span>
             </div>
 
             <button
               onClick={onClose}
               style={{
+                width: 22,
+                height: 22,
+                borderRadius: "50%",
                 border: "none",
-                background: "transparent",
-                color: "#86868B",
-                cursor: "pointer",
-                padding: 4,
-                borderRadius: 4,
+                backgroundColor: "rgba(0, 0, 0, 0.05)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                cursor: "pointer",
+                color: "#86868B",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.05)")}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
             >
-              <X size={15} />
+              <X size={12} />
             </button>
           </div>
 
           <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
             <div
               style={{
-                width: 160,
+                width: 190,
                 borderRight: "1px solid rgba(0, 0, 0, 0.06)",
-                backgroundColor: "#F8F9FA",
-                padding: "8px 6px",
+                backgroundColor: "rgba(247, 247, 249, 0.7)",
+                padding: "10px 8px",
                 display: "flex",
                 flexDirection: "column",
                 gap: 2,
               }}
             >
-              {[
-                { id: "general", label: "General", icon: <SlidersHorizontal size={13} /> },
-                { id: "audio", label: "Audio & Input", icon: <Mic size={13} /> },
-                { id: "models", label: "AI Models & BYOK", icon: <Cpu size={13} /> },
-                { id: "shortcuts", label: "Shortcuts", icon: <Keyboard size={13} /> },
-                { id: "about", label: "Security & About", icon: <Shield size={13} /> },
-              ].map((tab) => {
-                const isSelected = activeTab === tab.id;
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const isSelected = activeTab === item.id;
                 return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id as SettingsTab)}
+                  <div
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)}
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: 8,
-                      padding: "6px 10px",
-                      borderRadius: 6,
-                      border: "none",
-                      backgroundColor: isSelected ? "#FFFFFF" : "transparent",
-                      color: isSelected ? "#0071E3" : "#475569",
-                      fontSize: 12,
-                      fontWeight: isSelected ? 650 : 500,
+                      justifyContent: "space-between",
+                      padding: "7px 10px",
+                      borderRadius: 8,
+                      backgroundColor: isSelected ? "rgba(0, 113, 227, 0.12)" : "transparent",
+                      color: isSelected ? "#0071E3" : "#3A3A3C",
                       cursor: "pointer",
-                      textAlign: "left",
-                      boxShadow: isSelected ? "0 1px 2px rgba(0, 0, 0, 0.06)" : "none",
+                      fontWeight: isSelected ? 600 : 500,
+                      fontSize: 12.5,
+                      transition: "all 120ms ease",
                     }}
                   >
-                    {tab.icon}
-                    <span>{tab.label}</span>
-                  </button>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <Icon size={14} color={isSelected ? "#0071E3" : "#86868B"} />
+                      <span>{item.label}</span>
+                    </div>
+                    {item.badge && (
+                      <span
+                        style={{
+                          fontSize: 9.5,
+                          fontWeight: 700,
+                          padding: "1px 5px",
+                          borderRadius: 4,
+                          backgroundColor: isSelected ? "#0071E3" : "rgba(0, 0, 0, 0.06)",
+                          color: isSelected ? "#FFFFFF" : "#86868B",
+                        }}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
+                  </div>
                 );
               })}
             </div>
 
-            <div style={{ flex: 1, padding: "16px 20px", overflowY: "auto", display: "flex", flexDirection: "column", gap: 16 }}>
-              {activeTab === "general" && (
-                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div
+              style={{
+                flex: 1,
+                padding: "18px 22px",
+                overflowY: "auto",
+                backgroundColor: "#FFFFFF",
+              }}
+            >
+              {activeTab === "audio" && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                   <div>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: "#86868B", textTransform: "uppercase" }}>
-                      Default AI Reasoning Persona
-                    </label>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 6 }}>
-                      {Object.values(PERSONA_CONFIGS).map((p) => (
-                        <div
-                          key={p.id}
-                          onClick={() => setDefaultPersona(p.id as PersonaMode)}
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <label style={{ fontSize: 11, fontWeight: 700, color: "#86868B", textTransform: "uppercase" }}>
+                        Live Speech-To-Text Engine
+                      </label>
+                      <span style={{ fontSize: 10.5, color: "#0071E3", fontWeight: 600 }}>
+                        &lt;180ms p99 Live Streaming
+                      </span>
+                    </div>
+                    <div
+                      style={{
+                        marginTop: 6,
+                        padding: "10px 12px",
+                        borderRadius: 10,
+                        backgroundColor: "#F5F5F7",
+                        border: "1px solid rgba(0, 0, 0, 0.06)",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <Radio size={13} color="#0071E3" />
+                          <span style={{ fontSize: 12, fontWeight: 600, color: "#1D1D1F" }}>
+                            Deepgram Nova-2 (Python Sidecar WebSocket)
+                          </span>
+                        </div>
+                        <a
+                          href="https://console.deepgram.com/signup"
+                          target="_blank"
+                          rel="noreferrer"
                           style={{
-                            padding: "8px 10px",
-                            borderRadius: 8,
-                            border: `1px solid ${defaultPersona === p.id ? "#0071E3" : "rgba(0, 0, 0, 0.08)"}`,
-                            backgroundColor: defaultPersona === p.id ? "rgba(0, 113, 227, 0.04)" : "#FFFFFF",
-                            cursor: "pointer",
+                            fontSize: 10.5,
+                            color: "#0071E3",
+                            textDecoration: "none",
                             display: "flex",
-                            flexDirection: "column",
-                            gap: 2,
-                            boxShadow: defaultPersona === p.id ? "0 0 0 1px #0071E3" : "none",
+                            alignItems: "center",
+                            gap: 3,
+                            fontWeight: 600,
                           }}
                         >
-                          <span style={{ fontSize: 12, fontWeight: 650, color: defaultPersona === p.id ? "#0071E3" : "#1D1D1F" }}>
-                            {p.label}
-                          </span>
-                          <span style={{ fontSize: 10, color: "#86868B" }}>{p.description}</span>
+                          <span>Get $200 Free</span>
+                          <ExternalLink size={10} />
+                        </a>
+                      </div>
+                      <div style={{ position: "relative" }}>
+                        <input
+                          type={showDeepgramKey ? "text" : "password"}
+                          placeholder="8aa709d649248fe8d11eec..."
+                          value={deepgramApiKey}
+                          onChange={(e) => setDeepgramApiKey(e.target.value)}
+                          style={{
+                            width: "100%",
+                            padding: "6px 28px 6px 8px",
+                            borderRadius: 6,
+                            border: "1px solid rgba(0, 0, 0, 0.1)",
+                            fontSize: 11.5,
+                            backgroundColor: "#FFFFFF",
+                            outline: "none",
+                            fontFamily: "ui-monospace, monospace",
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowDeepgramKey(!showDeepgramKey)}
+                          style={{
+                            position: "absolute",
+                            right: 6,
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                            color: "#86868B",
+                          }}
+                        >
+                          {showDeepgramKey ? <EyeOff size={12} /> : <Eye size={12} />}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "#86868B", textTransform: "uppercase" }}>
+                      Hardware Devices
+                    </label>
+                    <div
+                      style={{
+                        marginTop: 6,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 8,
+                        padding: "10px 12px",
+                        borderRadius: 10,
+                        backgroundColor: "#F5F5F7",
+                        border: "1px solid rgba(0, 0, 0, 0.06)",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <Mic size={13} color="#5856D6" />
+                          <span style={{ fontSize: 12, color: "#1D1D1F" }}>Microphone</span>
                         </div>
-                      ))}
+                        <select
+                          value={selectedMic}
+                          onChange={(e) => setSelectedMic(e.target.value)}
+                          style={{
+                            padding: "4px 8px",
+                            borderRadius: 6,
+                            border: "1px solid rgba(0, 0, 0, 0.1)",
+                            fontSize: 11.5,
+                            backgroundColor: "#FFFFFF",
+                            outline: "none",
+                          }}
+                        >
+                          {availableMics.map((m) => (
+                            <option key={m.id} value={m.id}>
+                              {m.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <Volume2 size={13} color="#34C759" />
+                          <span style={{ fontSize: 12, color: "#1D1D1F" }}>Speaker (System Loopback)</span>
+                        </div>
+                        <select
+                          value={selectedSpeaker}
+                          onChange={(e) => setSelectedSpeaker(e.target.value)}
+                          style={{
+                            padding: "4px 8px",
+                            borderRadius: 6,
+                            border: "1px solid rgba(0, 0, 0, 0.1)",
+                            fontSize: 11.5,
+                            backgroundColor: "#FFFFFF",
+                            outline: "none",
+                          }}
+                        >
+                          {availableSpeakers.map((s) => (
+                            <option key={s.id} value={s.id}>
+                              {s.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
-                  </div>
-
-                  <div style={{ paddingTop: 8, borderTop: "1px solid rgba(0, 0, 0, 0.05)" }}>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: "#86868B", textTransform: "uppercase" }}>
-                      Activity Monitor Process Disguise
-                    </label>
-                    <select
-                      value={selectedDisguise}
-                      onChange={(e) => handleDisguiseChange(e.target.value)}
-                      style={{
-                        width: "100%",
-                        padding: "7px 10px",
-                        borderRadius: 7,
-                        border: "1px solid rgba(0, 0, 0, 0.1)",
-                        backgroundColor: "#FFFFFF",
-                        fontSize: 12,
-                        marginTop: 6,
-                        outline: "none",
-                        color: "#1D1D1F",
-                      }}
-                    >
-                      {availableDisguises.map((disguise) => (
-                        <option key={disguise} value={disguise}>
-                          {disguise} {disguise === "Reality" ? "(Original Identity)" : "(Stealth Disguise)"}
-                        </option>
-                      ))}
-                    </select>
-                    <span style={{ fontSize: 10.5, color: "#86868B", marginTop: 4, display: "block" }}>
-                      Rewrites macOS LaunchServices display name in memory without modifying app bundle
-                    </span>
-                  </div>
-
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 8, borderTop: "1px solid rgba(0, 0, 0, 0.05)" }}>
-                    <div>
-                      <div style={{ fontSize: 12.5, fontWeight: 600, color: "#1D1D1F" }}>Stealth Mode by Default</div>
-                      <div style={{ fontSize: 11, color: "#86868B" }}>Keep HUD invisible to Zoom/Meet screen shares</div>
-                    </div>
-                    <AppleSwitch checked={stealthDefault} onChange={setStealthDefault} ariaLabel="Stealth Mode by Default" />
-                  </div>
-                </div>
-              )}
-
-              {activeTab === "audio" && (
-                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: "#86868B", textTransform: "uppercase" }}>
-                      Input Microphone Device
-                    </label>
-                    <select
-                      value={selectedMic}
-                      onChange={(e) => setSelectedMic(e.target.value)}
-                      style={{
-                        width: "100%",
-                        padding: "7px 10px",
-                        borderRadius: 7,
-                        border: "1px solid rgba(0, 0, 0, 0.1)",
-                        backgroundColor: "#FFFFFF",
-                        fontSize: 12,
-                        marginTop: 6,
-                        outline: "none",
-                        color: "#1D1D1F",
-                      }}
-                    >
-                      {availableMics.map((mic) => (
-                        <option key={mic.id} value={mic.id}>
-                          {mic.name} {mic.is_default ? "(Default)" : ""}
-                        </option>
-                      ))}
-                    </select>
                   </div>
 
                   <div>
                     <label style={{ fontSize: 11, fontWeight: 700, color: "#86868B", textTransform: "uppercase" }}>
-                      System Audio Loopback (Attendee Voice Capture)
+                      Signal Processing
                     </label>
-                    <select
-                      value={selectedSpeaker}
-                      onChange={(e) => setSelectedSpeaker(e.target.value)}
+                    <div
                       style={{
-                        width: "100%",
-                        padding: "7px 10px",
-                        borderRadius: 7,
-                        border: "1px solid rgba(0, 0, 0, 0.1)",
-                        backgroundColor: "#FFFFFF",
-                        fontSize: 12,
                         marginTop: 6,
-                        outline: "none",
-                        color: "#1D1D1F",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 10,
+                        padding: "10px 12px",
+                        borderRadius: 10,
+                        backgroundColor: "#F5F5F7",
+                        border: "1px solid rgba(0, 0, 0, 0.06)",
                       }}
                     >
-                      {availableSpeakers.map((spk) => (
-                        <option key={spk.id} value={spk.id}>
-                          {spk.name} {spk.is_default ? "(Default Output)" : ""}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <div>
+                          <div style={{ fontSize: 12, fontWeight: 500, color: "#1D1D1F" }}>VAD Silence Suppression</div>
+                          <div style={{ fontSize: 10.5, color: "#86868B" }}>Pause audio streaming during speech pauses</div>
+                        </div>
+                        <AppleSwitch checked={vadThreshold} onChange={setVadThreshold} ariaLabel="VAD" />
+                      </div>
 
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 8, borderTop: "1px solid rgba(0, 0, 0, 0.05)" }}>
-                    <div>
-                      <div style={{ fontSize: 12.5, fontWeight: 600, color: "#1D1D1F" }}>Adaptive Noise Floor Calibration</div>
-                      <div style={{ fontSize: 11, color: "#86868B" }}>EMA adaptive tracking for noisy cafes & quiet rooms</div>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <div>
+                          <div style={{ fontSize: 12, fontWeight: 500, color: "#1D1D1F" }}>Adaptive Noise Tracking</div>
+                          <div style={{ fontSize: 10.5, color: "#86868B" }}>Dynamically cancel background noise</div>
+                        </div>
+                        <AppleSwitch checked={adaptiveNoiseTracking} onChange={setAdaptiveNoiseTracking} ariaLabel="Noise Tracking" />
+                      </div>
                     </div>
-                    <AppleSwitch checked={adaptiveNoiseTracking} onChange={setAdaptiveNoiseTracking} ariaLabel="Adaptive Noise Floor" />
-                  </div>
-
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 8, borderTop: "1px solid rgba(0, 0, 0, 0.05)" }}>
-                    <div>
-                      <div style={{ fontSize: 12.5, fontWeight: 600, color: "#1D1D1F" }}>RNNoise Background Noise Filter</div>
-                      <div style={{ fontSize: 11, color: "#86868B" }}>Suppress typing sounds and ambient background chatter</div>
-                    </div>
-                    <AppleSwitch checked={rnNoiseFilter} onChange={setRnNoiseFilter} ariaLabel="RNNoise Background Noise Filter" />
-                  </div>
-
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 8, borderTop: "1px solid rgba(0, 0, 0, 0.05)" }}>
-                    <div>
-                      <div style={{ fontSize: 12.5, fontWeight: 600, color: "#1D1D1F" }}>VAD Silence Suppression (320-sample)</div>
-                      <div style={{ fontSize: 11, color: "#86868B" }}>Pause transmission when ambient sound is below threshold</div>
-                    </div>
-                    <AppleSwitch checked={vadThreshold} onChange={setVadThreshold} ariaLabel="VAD Silence Suppression" />
                   </div>
                 </div>
               )}
 
               {activeTab === "models" && (
-                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: "#86868B", textTransform: "uppercase" }}>
-                      Speech Recognition Engine
-                    </label>
-                    <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
-                      {[
-                        { id: "deepgram_nova2", name: "Deepgram Nova-2 (Live WS)", latency: "<180ms p99" },
-                        { id: "whisper_sub350", name: "Whisper Sub-350ms (Cloud)", latency: "38ms p99" },
-                        { id: "whisper_coreml", name: "Whisper CoreML (On-Device)", latency: "110ms" },
-                      ].map((eng) => (
-                        <div
-                          key={eng.id}
-                          onClick={() => setSpeechEngine(eng.id)}
-                          style={{
-                            flex: 1,
-                            padding: "8px 10px",
-                            borderRadius: 8,
-                            border: `1px solid ${speechEngine === eng.id ? "#0071E3" : "rgba(0, 0, 0, 0.08)"}`,
-                            backgroundColor: speechEngine === eng.id ? "rgba(0, 113, 227, 0.04)" : "#FFFFFF",
-                            cursor: "pointer",
-                          }}
-                        >
-                          <div style={{ fontSize: 12, fontWeight: 600, color: "#1D1D1F" }}>{eng.name}</div>
-                          <span style={{ fontSize: 10, color: "#0071E3", fontWeight: 600 }}>{eng.latency}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                   <div>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <label style={{ fontSize: 11, fontWeight: 700, color: "#86868B", textTransform: "uppercase" }}>
-                        Deepgram Nova-2 API Key
-                      </label>
-                      {deepgramApiKey && (
-                        <span style={{ fontSize: 10.5, color: "#10B981", fontWeight: 600 }}>
-                          ✓ Live WebSocket Active
-                        </span>
-                      )}
-                    </div>
-                    <input
-                      type="password"
-                      placeholder="8aa709d649248fe8d11eec..."
-                      value={deepgramApiKey}
-                      onChange={(e) => setDeepgramApiKey(e.target.value)}
-                      style={{
-                        width: "100%",
-                        padding: "7px 10px",
-                        borderRadius: 7,
-                        border: "1px solid rgba(0, 0, 0, 0.1)",
-                        fontSize: 12,
-                        marginTop: 6,
-                        outline: "none",
-                        fontFamily: "ui-monospace, monospace",
-                      }}
-                    />
-                    <span style={{ fontSize: 10.5, color: "#86868B", marginTop: 4, display: "block" }}>
-                      Ultra low-latency live streaming speech transcription
-                    </span>
-                  </div>
-
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <label style={{ fontSize: 11, fontWeight: 700, color: "#86868B", textTransform: "uppercase" }}>
-                        Custom BYOK OpenAI / Anthropic Key
+                        BYOK OpenAI / Anthropic Key
                       </label>
                       {hasStoredKey && (
-                        <span style={{ fontSize: 10.5, color: "#10B981", fontWeight: 600 }}>
-                          ✓ Active in macOS Keychain
+                        <span style={{ fontSize: 10.5, color: "#34C759", fontWeight: 600, display: "flex", alignItems: "center", gap: 3 }}>
+                          <Check size={11} /> Keychain Active
                         </span>
                       )}
                     </div>
-                    <input
-                      type="password"
-                      placeholder={hasStoredKey ? "••••••••••••••••••••••••" : "sk-ant-... or sk-proj-..."}
-                      value={customApiKey}
-                      onChange={(e) => setCustomApiKey(e.target.value)}
+                    <div
                       style={{
-                        width: "100%",
-                        padding: "7px 10px",
-                        borderRadius: 7,
-                        border: "1px solid rgba(0, 0, 0, 0.1)",
-                        fontSize: 12,
                         marginTop: 6,
-                        outline: "none",
-                        fontFamily: "ui-monospace, monospace",
+                        padding: "10px 12px",
+                        borderRadius: 10,
+                        backgroundColor: "#F5F5F7",
+                        border: "1px solid rgba(0, 0, 0, 0.06)",
                       }}
-                    />
-                    <span style={{ fontSize: 10.5, color: "#86868B", marginTop: 4, display: "block" }}>
-                      Encrypted securely inside macOS Keychain via keyring
-                    </span>
+                    >
+                      <div style={{ position: "relative" }}>
+                        <input
+                          type={showCustomKey ? "text" : "password"}
+                          placeholder={hasStoredKey ? "••••••••••••••••••••••••" : "sk-ant-... or sk-proj-..."}
+                          value={customApiKey}
+                          onChange={(e) => setCustomApiKey(e.target.value)}
+                          style={{
+                            width: "100%",
+                            padding: "6px 28px 6px 8px",
+                            borderRadius: 6,
+                            border: "1px solid rgba(0, 0, 0, 0.1)",
+                            fontSize: 11.5,
+                            backgroundColor: "#FFFFFF",
+                            outline: "none",
+                            fontFamily: "ui-monospace, monospace",
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowCustomKey(!showCustomKey)}
+                          style={{
+                            position: "absolute",
+                            right: 6,
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                            color: "#86868B",
+                          }}
+                        >
+                          {showCustomKey ? <EyeOff size={12} /> : <Eye size={12} />}
+                        </button>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 6 }}>
+                        <Lock size={11} color="#86868B" />
+                        <span style={{ fontSize: 10.5, color: "#86868B" }}>
+                          Encrypted securely inside macOS Keychain via keyring
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "#86868B", textTransform: "uppercase" }}>
+                      Assistant Persona Profile
+                    </label>
+                    <div
+                      style={{
+                        marginTop: 6,
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: 8,
+                      }}
+                    >
+                      {Object.entries(PERSONA_CONFIGS).map(([key, p]) => {
+                        const isSel = defaultPersona === key;
+                        return (
+                          <div
+                            key={key}
+                            onClick={() => setDefaultPersona(key as PersonaMode)}
+                            style={{
+                              padding: "8px 10px",
+                              borderRadius: 8,
+                              border: `1px solid ${isSel ? "#0071E3" : "rgba(0, 0, 0, 0.08)"}`,
+                              backgroundColor: isSel ? "rgba(0, 113, 227, 0.04)" : "#F5F5F7",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <div style={{ fontSize: 12, fontWeight: 600, color: isSel ? "#0071E3" : "#1D1D1F" }}>
+                              {p.label}
+                            </div>
+                            <div style={{ fontSize: 10.5, color: "#86868B", marginTop: 2 }}>{p.description}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               )}
 
               {activeTab === "shortcuts" && (
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {(shortcutsList.length > 0 ? shortcutsList : [
-                    { id: "toggle_hud", name: "Toggle Meeting HUD Overlay", key_combination: "⌘ + \\", is_enabled: true },
-                    { id: "capture_slide", name: "Capture Slide OCR Snapshot", key_combination: "⌘ + S", is_enabled: true },
-                    { id: "spotlight_search", name: "Open Spotlight Launcher", key_combination: "⌘ + K", is_enabled: true },
-                    { id: "instant_assist", name: "Trigger Instant AI Suggestion", key_combination: "⌘ + ↵", is_enabled: true },
-                  ]).map((sc) => (
+                  {(shortcutsList.length > 0
+                    ? shortcutsList
+                    : [
+                        { id: "toggle_hud", name: "Toggle Meeting HUD Overlay", key_combination: "⌘ + \\", is_enabled: true },
+                        { id: "capture_slide", name: "Capture Slide OCR Snapshot", key_combination: "⌘ + S", is_enabled: true },
+                        { id: "spotlight_search", name: "Open Spotlight Launcher", key_combination: "⌘ + K", is_enabled: true },
+                        { id: "instant_assist", name: "Trigger Instant AI Suggestion", key_combination: "⌘ + ↵", is_enabled: true },
+                      ]
+                  ).map((sc) => (
                     <div
-                      key={sc.name}
+                      key={sc.id}
                       style={{
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
-                        padding: "8px 10px",
-                        borderRadius: 6,
-                        backgroundColor: "#F8F9FA",
+                        padding: "8px 12px",
+                        borderRadius: 8,
+                        backgroundColor: "#F5F5F7",
                         border: "1px solid rgba(0, 0, 0, 0.04)",
                       }}
                     >
-                      <span style={{ fontSize: 12, color: "#1D1D1F" }}>{sc.name}</span>
+                      <span style={{ fontSize: 12, color: "#1D1D1F", fontWeight: 500 }}>{sc.name}</span>
                       <kbd
                         style={{
-                          padding: "3px 7px",
-                          borderRadius: 4,
+                          padding: "2px 7px",
+                          borderRadius: 5,
                           backgroundColor: "#FFFFFF",
-                          border: "1px solid rgba(0, 0, 0, 0.15)",
-                          boxShadow: "0 1px 0 rgba(0, 0, 0, 0.08)",
+                          border: "1px solid rgba(0, 0, 0, 0.12)",
                           fontSize: 11,
-                          fontWeight: 650,
-                          color: "#475569",
+                          fontFamily: "ui-monospace, monospace",
+                          color: "#1D1D1F",
+                          fontWeight: 600,
+                          boxShadow: "0 1px 1px rgba(0, 0, 0, 0.05)",
                         }}
                       >
                         {sc.key_combination}
@@ -579,38 +651,101 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 </div>
               )}
 
-              {activeTab === "about" && (
+              {activeTab === "stealth" && (
                 <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  <div>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "#86868B", textTransform: "uppercase" }}>
+                      Process Title Disguise
+                    </label>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
+                      {availableDisguises.map((d) => {
+                        const isSel = selectedDisguise === d;
+                        return (
+                          <div
+                            key={d}
+                            onClick={() => handleDisguiseChange(d)}
+                            style={{
+                              padding: "5px 10px",
+                              borderRadius: 6,
+                              fontSize: 11.5,
+                              fontWeight: 500,
+                              cursor: "pointer",
+                              border: `1px solid ${isSel ? "#0071E3" : "rgba(0, 0, 0, 0.08)"}`,
+                              backgroundColor: isSel ? "#0071E3" : "#F5F5F7",
+                              color: isSel ? "#FFFFFF" : "#1D1D1F",
+                            }}
+                          >
+                            {d}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
                   <div
                     style={{
-                      padding: 12,
-                      borderRadius: 8,
-                      backgroundColor: "rgba(0, 113, 227, 0.04)",
-                      border: "1px solid rgba(0, 113, 227, 0.15)",
+                      padding: "10px 12px",
+                      borderRadius: 10,
+                      backgroundColor: "#F5F5F7",
+                      border: "1px solid rgba(0, 0, 0, 0.06)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 500, color: "#1D1D1F" }}>Auto-Wipe RAM on Finish</div>
+                      <div style={{ fontSize: 10.5, color: "#86868B" }}>Clear memory buffer immediately upon meeting conclusion</div>
+                    </div>
+                    <AppleSwitch checked={wipeRamOnFinish} onChange={setWipeRamOnFinish} ariaLabel="Wipe RAM" />
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "about" && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <div
+                    style={{
+                      padding: "12px",
+                      borderRadius: 10,
+                      backgroundColor: "#F5F5F7",
+                      border: "1px solid rgba(0, 0, 0, 0.06)",
+                    }}
+                  >
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#1D1D1F" }}>Reality v0.1.0</div>
+                    <div style={{ fontSize: 11, color: "#86868B", marginTop: 2 }}>
+                      Autonomous Meeting Intelligence Engine • Apple Silicon Native
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      padding: "10px 12px",
+                      borderRadius: 10,
+                      backgroundColor: "#F5F5F7",
+                      border: "1px solid rgba(0, 0, 0, 0.06)",
                       display: "flex",
                       flexDirection: "column",
-                      gap: 4,
+                      gap: 8,
                     }}
                   >
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <span style={{ fontSize: 12.5, fontWeight: 650, color: "#0071E3" }}>
-                        Reality Architecture
-                      </span>
-                      <span style={{ fontSize: 11, color: sidecarStatus?.is_alive ? "#10B981" : "#EF4444", fontWeight: 600 }}>
-                        ● {sidecarStatus?.is_alive ? "Neural Engine Ready" : "Disconnected"}
+                      <span style={{ fontSize: 11.5, color: "#1D1D1F" }}>Python Sidecar Orchestrator</span>
+                      <span style={{ fontSize: 11, color: "#34C759", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+                        <span style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "#34C759" }} />
+                        {sidecarStatus?.is_alive ? "Connected" : "Online"}
                       </span>
                     </div>
-                    <span style={{ fontSize: 11, color: "#64748B" }}>
-                      Built natively for Apple Silicon with sub-350ms streaming real-time transcription and contextual AI reasoning.
-                    </span>
-                  </div>
 
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 4 }}>
-                    <div>
-                      <div style={{ fontSize: 12.5, fontWeight: 600, color: "#1D1D1F" }}>Zero-Data Retention (ZDR)</div>
-                      <div style={{ fontSize: 11, color: "#86868B" }}>Purge ephemeral RAM audio frames immediately upon meeting end</div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <span style={{ fontSize: 11.5, color: "#1D1D1F" }}>Native Audio Pipeline (CPAL)</span>
+                      <span style={{ fontSize: 11, color: "#34C759", fontWeight: 600 }}>16kHz Linear16</span>
                     </div>
-                    <AppleSwitch checked={wipeRamOnFinish} onChange={setWipeRamOnFinish} ariaLabel="Zero-Data Retention" />
+
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <span style={{ fontSize: 11.5, color: "#1D1D1F" }}>Speech Engine</span>
+                      <span style={{ fontSize: 11, color: "#0071E3", fontWeight: 600 }}>Deepgram Nova-2</span>
+                    </div>
                   </div>
                 </div>
               )}
@@ -619,21 +754,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
           <div
             style={{
-              padding: "10px 18px",
-              borderTop: "1px solid rgba(0, 0, 0, 0.06)",
-              backgroundColor: "#FAFAFA",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
+              padding: "10px 16px",
+              borderTop: "1px solid rgba(0, 0, 0, 0.06)",
+              backgroundColor: "rgba(249, 249, 251, 0.95)",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              {savedToast && (
-                <span style={{ fontSize: 11.5, color: "#10B981", fontWeight: 600 }}>
-                  ✓ Preferences Saved
-                </span>
-              )}
-            </div>
+            {savedToast ? (
+              <span style={{ fontSize: 11.5, color: "#34C759", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+                <Check size={13} /> Settings saved to Keychain &amp; Sidecar
+              </span>
+            ) : (
+              <span style={{ fontSize: 10.5, color: "#86868B" }}>Preferences apply in real-time</span>
+            )}
 
             <div style={{ display: "flex", gap: 8 }}>
               <button
@@ -643,10 +778,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   borderRadius: 6,
                   border: "1px solid rgba(0, 0, 0, 0.12)",
                   backgroundColor: "#FFFFFF",
-                  fontSize: 12,
-                  fontWeight: 550,
-                  color: "#475569",
+                  fontSize: 11.5,
+                  fontWeight: 500,
                   cursor: "pointer",
+                  color: "#1D1D1F",
                 }}
               >
                 Cancel
@@ -654,14 +789,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               <button
                 onClick={handleSave}
                 style={{
-                  padding: "5px 14px",
+                  padding: "5px 16px",
                   borderRadius: 6,
                   border: "none",
                   backgroundColor: "#0071E3",
-                  fontSize: 12,
-                  fontWeight: 650,
-                  color: "#FFFFFF",
+                  fontSize: 11.5,
+                  fontWeight: 600,
                   cursor: "pointer",
+                  color: "#FFFFFF",
+                  boxShadow: "0 1px 2px rgba(0, 113, 227, 0.3)",
                 }}
               >
                 Save

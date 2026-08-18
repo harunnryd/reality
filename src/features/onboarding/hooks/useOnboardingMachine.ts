@@ -2,12 +2,14 @@ import { useReducer, useEffect, useCallback } from "react";
 import type { OnboardingState, OnboardingAction, OnboardingStage } from "@/features/onboarding/types";
 import { onboardingStorage } from "@/services/onboardingStorage";
 import { credentialsService } from "@/services/credentialsService";
+import { deepgramService } from "@/services/deepgramService";
 import { usePermissionsState } from "@/features/onboarding/hooks/usePermissionsState";
 
 const initialState: OnboardingState = {
   stage: "permissions",
   isLoading: true,
   apiKey: "",
+  deepgramApiKey: "",
   apiKeySaving: false,
   apiKeyError: null,
   permissions: {
@@ -39,6 +41,12 @@ function onboardingReducer(state: OnboardingState, action: OnboardingAction): On
       return {
         ...state,
         apiKey: action.apiKey,
+        apiKeyError: null,
+      };
+    case "SET_DEEPGRAM_API_KEY":
+      return {
+        ...state,
+        deepgramApiKey: action.apiKey,
         apiKeyError: null,
       };
     case "SET_API_KEY_SAVING":
@@ -81,10 +89,20 @@ export function useOnboardingMachine() {
     dispatch({ type: "SET_API_KEY", apiKey });
   }, []);
 
-  const saveApiKey = useCallback(async (key: string) => {
+  const setDeepgramApiKey = useCallback((apiKey: string) => {
+    dispatch({ type: "SET_DEEPGRAM_API_KEY", apiKey });
+  }, []);
+
+  const saveKeys = useCallback(async (openaiKey: string, deepgramKey: string) => {
     dispatch({ type: "SET_API_KEY_SAVING", isSaving: true });
     try {
-      await credentialsService.validateAndStoreKey(key);
+      if (deepgramKey.trim()) {
+        void deepgramService.configure(deepgramKey.trim());
+      }
+      if (openaiKey.trim()) {
+        await credentialsService.validateAndStoreKey(openaiKey.trim());
+      }
+      await onboardingStorage.setCompleted();
       dispatch({ type: "SET_STAGE", stage: "done" });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Validation failed";
@@ -103,8 +121,9 @@ export function useOnboardingMachine() {
     goToStage: setStage,
     setStage,
     setApiKey,
-    submitApiKey: saveApiKey,
-    saveApiKey,
+    setDeepgramApiKey,
+    submitApiKey: (key: string) => saveKeys(key, state.deepgramApiKey),
+    saveKeys,
     completeOnboarding,
   };
 }

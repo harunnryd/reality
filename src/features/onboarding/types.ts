@@ -6,6 +6,7 @@ export interface OnboardingState {
   stage: OnboardingStage;
   isLoading: boolean;
   apiKey: string;
+  deepgramApiKey: string;
   apiKeySaving: boolean;
   apiKeyError: string | null;
   permissions: PermissionsSnapshot;
@@ -16,5 +17,6 @@ export type OnboardingAction =
   | { type: "SET_STAGE"; stage: OnboardingStage }
   | { type: "SET_PERMISSIONS"; permissions: PermissionsSnapshot }
   | { type: "SET_API_KEY"; apiKey: string }
+  | { type: "SET_DEEPGRAM_API_KEY"; apiKey: string }
   | { type: "SET_API_KEY_SAVING"; isSaving: boolean }
   | { type: "SET_API_KEY_ERROR"; error: string | null };

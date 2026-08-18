@@ -19,7 +19,7 @@ export const OnboardingShell: React.FC<OnboardingShellProps> = ({ onComplete }) 
     state,
     permissionsManager,
     goToStage,
-    submitApiKey,
+    saveKeys,
     completeOnboarding,
   } = useOnboardingMachine();
 
@@ -119,10 +119,12 @@ export const OnboardingShell: React.FC<OnboardingShellProps> = ({ onComplete }) 
               <ApiKeyStage
                 key="api_key"
                 apiKey={state.apiKey}
+                deepgramApiKey={state.deepgramApiKey}
                 isSaving={state.apiKeySaving}
                 error={state.apiKeyError}
-                onSave={submitApiKey}
+                onSave={(openAiKey, deepgramKey) => saveKeys(openAiKey, deepgramKey)}
                 onBack={() => goToStage("permissions")}
+                onSkip={handleSkip}
               />
             )}
 

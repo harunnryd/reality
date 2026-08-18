@@ -9,14 +9,12 @@ function validateApiKeyInput(key: string): { isValid: boolean; provider?: "opena
   return { isValid: false };
 }
 
-function resolveStagingModelConfig(engineId: string): { isLocal: boolean; latencyP99Ms: number } {
-  switch (engineId) {
-    case "coreml_local":
-      return { isLocal: true, latencyP99Ms: 240 };
-    case "whisper_sub350":
-    default:
-      return { isLocal: false, latencyP99Ms: 320 };
-  }
+function resolveSpeechEngineConfig(): { provider: string; model: string; isStreaming: boolean } {
+  return {
+    provider: "deepgram",
+    model: "nova-2",
+    isStreaming: true,
+  };
 }
 
 describe("Launcher - Settings Modal Logic Unit Tests", () => {
@@ -36,17 +34,12 @@ describe("Launcher - Settings Modal Logic Unit Tests", () => {
     });
   });
 
-  describe("Speech Engine Configuration Resolution", () => {
-    it("resolves cloud sub-350ms pipeline", () => {
-      const config = resolveStagingModelConfig("whisper_sub350");
-      expect(config.isLocal).toBe(false);
-      expect(config.latencyP99Ms).toBe(320);
-    });
-
-    it("resolves on-device CoreML Apple Silicon pipeline", () => {
-      const config = resolveStagingModelConfig("coreml_local");
-      expect(config.isLocal).toBe(true);
-      expect(config.latencyP99Ms).toBe(240);
+  describe("Speech Engine Configuration", () => {
+    it("resolves active deepgram streaming pipeline", () => {
+      const config = resolveSpeechEngineConfig();
+      expect(config.provider).toBe("deepgram");
+      expect(config.model).toBe("nova-2");
+      expect(config.isStreaming).toBe(true);
     });
   });
 });

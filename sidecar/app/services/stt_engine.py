@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import base64
-import json
 import sys
 from typing import Any, Callable
 
@@ -23,7 +22,6 @@ class DeepgramStreamingSTT:
         self._live: Any = None
         self._is_active = False
         self._buffer: list[bytes] = []
-        self._keepalive_task: asyncio.Task | None = None
 
     @property
     def is_active(self) -> bool:
@@ -69,7 +67,6 @@ class DeepgramStreamingSTT:
             started = await self._live.start(options)
             if started:
                 self._is_active = True
-                self._start_keepalive()
                 self._log("connected to Deepgram Nova-2 via AsyncLiveWebSocket")
                 await self._flush_buffer()
             else:
@@ -82,11 +79,6 @@ class DeepgramStreamingSTT:
     async def _on_open(self, *args: Any, **kwargs: Any) -> None:
         self._is_active = True
         self._log("websocket opened")
-        if self._live:
-            try:
-                await self._live.keep_alive()
-            except Exception:
-                pass
         await self._flush_buffer()
 
     async def _on_transcript(self, *args: Any, **kwargs: Any) -> None:
@@ -168,10 +160,6 @@ class DeepgramStreamingSTT:
     async def stop(self) -> dict[str, Any]:
         self._is_active = False
 
-        if self._keepalive_task and not self._keepalive_task.done():
-            self._keepalive_task.cancel()
-            self._keepalive_task = None
-
         if self._live:
             try:
                 await self._live.finish()
@@ -182,18 +170,6 @@ class DeepgramStreamingSTT:
         self._buffer.clear()
         self._log("stopped")
         return {"status": "ok"}
-
-    def _start_keepalive(self) -> None:
-        async def _keepalive_loop() -> None:
-            while self._is_active and self._live:
-                await asyncio.sleep(3)
-                if self._is_active and self._live:
-                    try:
-                        await self._live.keep_alive()
-                    except Exception:
-                        pass
-
-        self._keepalive_task = asyncio.create_task(_keepalive_loop())
 
     def _log(self, message: str) -> None:
         print(f"[stt_engine] {message}", file=sys.stderr, flush=True)

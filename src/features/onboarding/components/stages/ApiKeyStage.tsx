@@ -213,13 +213,19 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
               variant="soft"
               color="gray"
               disabled={isSaving}
-              onClick={onBack}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onBack();
+              }}
               style={{
                 ...typography.scale.button,
                 height: "38px",
                 padding: "0 18px",
                 borderRadius: "8px",
-                cursor: "pointer",
+                cursor: isSaving ? "default" : "pointer",
+                userSelect: "none",
+                WebkitUserSelect: "none",
               }}
             >
               Back

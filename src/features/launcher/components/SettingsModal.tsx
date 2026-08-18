@@ -194,8 +194,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           onClick={(e) => e.stopPropagation()}
           style={{
             width: "100%",
-            maxWidth: 680,
-            height: 480,
+            maxWidth: 720,
+            height: 490,
             backgroundColor: "#FFFFFF",
             borderRadius: 16,
             border: "1px solid rgba(0, 0, 0, 0.1)",
@@ -257,7 +257,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
             <div
               style={{
-                width: 190,
+                width: 215,
+                flexShrink: 0,
                 borderRight: "1px solid rgba(0, 0, 0, 0.06)",
                 backgroundColor: "rgba(247, 247, 249, 0.7)",
                 padding: "10px 8px",
@@ -277,7 +278,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
-                      padding: "7px 10px",
+                      padding: "8px 10px",
                       borderRadius: 8,
                       backgroundColor: isSelected ? "rgba(0, 113, 227, 0.12)" : "transparent",
                       color: isSelected ? "#0071E3" : "#3A3A3C",
@@ -287,7 +288,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       transition: "all 120ms ease",
                     }}
                   >
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, whiteSpace: "nowrap" }}>
                       <Icon size={14} color={isSelected ? "#0071E3" : "#86868B"} />
                       <span>{item.label}</span>
                     </div>
@@ -296,10 +297,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         style={{
                           fontSize: 9.5,
                           fontWeight: 700,
-                          padding: "1px 5px",
+                          padding: "1px 6px",
                           borderRadius: 4,
                           backgroundColor: isSelected ? "#0071E3" : "rgba(0, 0, 0, 0.06)",
                           color: isSelected ? "#FFFFFF" : "#86868B",
+                          whiteSpace: "nowrap",
+                          flexShrink: 0,
+                          marginLeft: 6,
                         }}
                       >
                         {item.badge}

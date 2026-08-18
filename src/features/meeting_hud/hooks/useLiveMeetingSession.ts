@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { LiveTranscriptMessage, LiveAiSuggestion, LiveMeetingConfig } from "../types";
 import { Meeting } from "../../launcher/types";
-import { aiIntelligenceService, visionService } from "@/services";
+import { aiIntelligenceService, visionService, audioService, speechRecognitionService } from "@/services";
 
 export function useLiveMeetingSession(config?: LiveMeetingConfig) {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -13,13 +13,6 @@ export function useLiveMeetingSession(config?: LiveMeetingConfig) {
   const [currentSuggestion, setCurrentSuggestion] = useState<LiveAiSuggestion | null>(null);
 
   const sessionIdRef = useRef(config?.title || `session-${Date.now()}`);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setElapsedSeconds((prev) => prev + 1);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   const handleUtteranceUpdate = useCallback((speaker: string, text: string, channel: "mic" | "speaker" = "speaker") => {
     const userMsg: LiveTranscriptMessage = {
@@ -61,6 +54,32 @@ export function useLiveMeetingSession(config?: LiveMeetingConfig) {
       })
       .catch(() => {});
   }, [elapsedSeconds]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setElapsedSeconds((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (isMicActive) {
+      void audioService.startSession({ capture_system_audio: true, vad_enabled: true });
+      speechRecognitionService.start((text, isFinal) => {
+        if (isFinal && text.trim()) {
+          handleUtteranceUpdate("You (Live Mic)", text.trim(), "mic");
+        }
+      });
+    } else {
+      speechRecognitionService.stop();
+      void audioService.stopSession();
+    }
+
+    return () => {
+      speechRecognitionService.stop();
+      void audioService.stopSession();
+    };
+  }, [isMicActive, handleUtteranceUpdate]);
 
   useEffect(() => {
     let unlistenTranscript: (() => void) | undefined;

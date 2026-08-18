@@ -13,13 +13,18 @@ export function useLiveMeetingSession(config?: LiveMeetingConfig) {
   const [currentSuggestion, setCurrentSuggestion] = useState<LiveAiSuggestion | null>(null);
 
   const sessionIdRef = useRef(config?.title || `session-${Date.now()}`);
+  const elapsedSecondsRef = useRef(0);
+
+  useEffect(() => {
+    elapsedSecondsRef.current = elapsedSeconds;
+  }, [elapsedSeconds]);
 
   const handleUtteranceUpdate = useCallback((speaker: string, text: string, channel: "mic" | "speaker" = "speaker") => {
     const userMsg: LiveTranscriptMessage = {
       id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
       speaker,
       text,
-      timestamp: elapsedSeconds,
+      timestamp: elapsedSecondsRef.current,
     };
     setMessages((prev) => [...prev, userMsg]);
 
@@ -53,7 +58,7 @@ export function useLiveMeetingSession(config?: LiveMeetingConfig) {
         }
       })
       .catch(() => {});
-  }, [elapsedSeconds]);
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {

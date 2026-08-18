@@ -21,7 +21,7 @@ def test_stt_engine_feed_audio_buffering():
         pcm_bytes = b"\x00\x00" * 100
         pcm_b64 = base64.b64encode(pcm_bytes).decode("utf-8")
 
-        engine.feed_audio(pcm_b64)
+        await engine.feed_audio(pcm_b64)
         assert len(engine._buffer) == 1
         assert engine._buffer[0] == pcm_bytes
 

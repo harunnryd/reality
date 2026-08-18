@@ -38,21 +38,18 @@ impl LinearResampler {
                 .collect();
         }
 
-        let step = self.in_rate / self.out_rate;
-        let mut output = Vec::with_capacity((mono_samples.len() as f64 / step) as usize + 2);
+        let ratio = self.out_rate / self.in_rate;
+        let mut output = Vec::with_capacity((mono_samples.len() as f64 * ratio) as usize + 4);
 
-        let mut idx = 0;
-        while idx < mono_samples.len() {
-            let current = mono_samples[idx];
-            while self.fraction < 1.0 {
-                let interpolated = self.last_sample + (current - self.last_sample) * (self.fraction as f32);
-                let scaled = (interpolated.clamp(-1.0, 1.0) * 32767.0) as i16;
-                output.push(scaled);
-                self.fraction += step;
+        for &sample in &mono_samples {
+            self.fraction += ratio;
+            while self.fraction >= 1.0 {
+                let factor = (1.0 - (self.fraction - 1.0) / ratio).clamp(0.0, 1.0) as f32;
+                let interpolated = self.last_sample + (sample - self.last_sample) * factor;
+                output.push((interpolated.clamp(-1.0, 1.0) * 32767.0) as i16);
+                self.fraction -= 1.0;
             }
-            self.fraction -= 1.0;
-            self.last_sample = current;
-            idx += 1;
+            self.last_sample = sample;
         }
 
         output

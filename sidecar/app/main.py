@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-import asyncio
 import json
 import sys
+from typing import Any
 
 from pydantic import ValidationError
 
 from app.graph.orchestrator import MeetingGraphOrchestrator
 from app.rpc.dispatcher import Dispatcher
-from app.rpc.schema import INTERNAL_ERROR, PARSE_ERROR, RpcError, RpcNotification, RpcRequest, RpcResponse
+from app.rpc.schema import RpcNotification, RpcRequest, RpcResponse
 from app.services import credentials_service
 from app.services.stt_engine import DeepgramStreamingSTT
 
@@ -94,9 +94,8 @@ async def handle_stt_stop(params: dict) -> dict:
 @dispatcher.method("audio.chunk")
 async def handle_audio_chunk(params: dict) -> dict:
     pcm_base64 = params.get("pcm_base64", "")
-    session_id = params.get("session_id", "default")
     if pcm_base64:
-        stt_engine.feed_audio(pcm_base64)
+        await stt_engine.feed_audio(pcm_base64)
     return {"status": "ok"}
 
 
@@ -118,45 +117,32 @@ async def handle_line(line: str) -> None:
         write_message(
             RpcResponse(
                 id=str(payload.get("id", "")),
-                error=RpcError(code=PARSE_ERROR, message="invalid request shape"),
+                error={"code": -32600, "message": "Invalid Request", "data": str(exc)},
             )
         )
         return
 
-    try:
-        response = await dispatcher.dispatch(request)
-    except Exception as exc:
-        log(f"handler error for {request.method}: {exc}")
-        response = RpcResponse.fail(request.id, INTERNAL_ERROR, str(exc))
-
+    response = await dispatcher.dispatch(request)
     write_message(response)
 
 
 async def main() -> None:
     log("reality-sidecar: ready")
     loop = asyncio.get_running_loop()
-    reader = asyncio.StreamReader()
-    protocol = asyncio.StreamReaderProtocol(reader)
-    await loop.connect_read_pipe(lambda: protocol, sys.stdin)
-
-    pending: set[asyncio.Task] = set()
 
     while True:
-        line = await reader.readline()
+        line = await loop.run_in_executor(None, sys.stdin.readline)
         if not line:
             break
-        stripped = line.decode("utf-8").strip()
-        if not stripped:
-            continue
-        task = asyncio.create_task(handle_line(stripped))
-        pending.add(task)
-        task.add_done_callback(pending.discard)
-
-    if pending:
-        await asyncio.gather(*pending)
-
-    log("reality-sidecar: stdin closed, exiting")
+        line = line.strip()
+        if line:
+            await handle_line(line)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    import asyncio
+
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        pass

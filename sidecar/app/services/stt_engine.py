@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import base64
+import json
 import sys
 from typing import Any, Callable
 
@@ -47,7 +48,6 @@ class DeepgramStreamingSTT:
 
             options = LiveOptions(
                 model="nova-2",
-                language="en",
                 smart_format=True,
                 interim_results=True,
                 encoding="linear16",
@@ -105,7 +105,7 @@ class DeepgramStreamingSTT:
                 "transcript.delta",
                 {
                     "text": transcript.strip(),
-                    "speaker": "You",
+                    "speaker": "Meeting (Live)",
                     "is_final": is_final,
                     "confidence": confidence,
                     "channel": "mic",
@@ -121,7 +121,7 @@ class DeepgramStreamingSTT:
     async def _on_error(self, *args: Any, **kwargs: Any) -> None:
         self._log(f"websocket error: {args} {kwargs}")
 
-    def feed_audio(self, pcm_base64: str) -> None:
+    async def feed_audio(self, pcm_base64: str) -> None:
         try:
             raw = base64.b64decode(pcm_base64)
         except Exception:
@@ -134,11 +134,7 @@ class DeepgramStreamingSTT:
             return
 
         try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                asyncio.create_task(self._live.send(raw))
-            else:
-                loop.run_until_complete(self._live.send(raw))
+            await self._live.send(raw)
         except Exception as exc:
             self._log(f"send error: {exc}")
 
@@ -180,10 +176,10 @@ class DeepgramStreamingSTT:
     def _start_keepalive(self) -> None:
         async def _keepalive_loop() -> None:
             while self._is_active and self._live:
-                await asyncio.sleep(8)
+                await asyncio.sleep(4)
                 if self._is_active and self._live:
                     try:
-                        await self._live.keep_alive()
+                        await self._live.send(json.dumps({"type": "KeepAlive"}))
                     except Exception:
                         pass
 

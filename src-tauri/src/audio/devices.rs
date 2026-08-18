@@ -21,6 +21,7 @@ pub fn normalize_device_name(s: &str) -> String {
         .to_lowercase()
 }
 
+#[allow(dead_code)]
 pub fn resolve_device_name_tier(requested: &str, candidate: &str) -> Option<u8> {
     if candidate == requested {
         Some(0)
@@ -33,6 +34,7 @@ pub fn resolve_device_name_tier(requested: &str, candidate: &str) -> Option<u8> 
     }
 }
 
+#[allow(dead_code)]
 pub fn resolve_best_device<'a>(requested: &str, candidates: &'a [String]) -> Option<&'a String> {
     let mut best: Option<(u8, &'a String)> = None;
     for candidate in candidates {

@@ -75,13 +75,23 @@ class DeepgramStreamingSTT:
             self._log(f"connection error: {exc}")
             self._is_active = False
 
-    def _on_open(self, _client: Any, _event: Any, **_kw: Any) -> None:
+    def _on_open(self, *args: Any, **kwargs: Any) -> None:
         self._is_active = True
         self._log("websocket opened")
         self._flush_buffer()
 
-    def _on_transcript(self, _client: Any, result: Any, **_kw: Any) -> None:
+    def _on_transcript(self, *args: Any, **kwargs: Any) -> None:
         try:
+            result = None
+            for a in args:
+                if hasattr(a, "channel"):
+                    result = a
+                    break
+            if not result:
+                result = kwargs.get("result")
+            if not result or not hasattr(result, "channel"):
+                return
+
             alt = result.channel.alternatives[0]
             transcript = alt.transcript
             if not transcript or not transcript.strip():
@@ -100,12 +110,12 @@ class DeepgramStreamingSTT:
         except Exception as exc:
             self._log(f"transcript parse error: {exc}")
 
-    def _on_close(self, _client: Any, _event: Any, **_kw: Any) -> None:
+    def _on_close(self, *args: Any, **kwargs: Any) -> None:
         self._is_active = False
         self._log("websocket closed")
 
-    def _on_error(self, _client: Any, error: Any, **_kw: Any) -> None:
-        self._log(f"websocket error: {error}")
+    def _on_error(self, *args: Any, **kwargs: Any) -> None:
+        self._log(f"websocket error: {args} {kwargs}")
 
     def feed_audio(self, pcm_base64: str) -> None:
         try:

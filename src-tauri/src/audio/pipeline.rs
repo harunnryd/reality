@@ -1,12 +1,16 @@
+use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use serde::{Deserialize, Serialize};
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 use tokio::sync::broadcast;
 
-use crate::audio::devices::resolve_best_device;
 use crate::audio::resampler::LinearResampler;
 use crate::audio::speaker_capture::SpeakerCapture;
 use crate::audio::vad::VadDetector;
+
+struct StreamHolder(#[allow(dead_code)] cpal::Stream);
+unsafe impl Send for StreamHolder {}
+unsafe impl Sync for StreamHolder {}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AudioSessionConfig {
@@ -31,6 +35,7 @@ pub struct AudioPipeline {
     vad: Arc<Mutex<VadDetector>>,
     speaker: Arc<SpeakerCapture>,
     pcm_tx: broadcast::Sender<Vec<i16>>,
+    stream: Arc<Mutex<Option<StreamHolder>>>,
 }
 
 impl Default for AudioPipeline {
@@ -49,6 +54,7 @@ impl AudioPipeline {
             vad: Arc::new(Mutex::new(VadDetector::new())),
             speaker: Arc::new(SpeakerCapture::new()),
             pcm_tx,
+            stream: Arc::new(Mutex::new(None)),
         }
     }
 
@@ -65,15 +71,54 @@ impl AudioPipeline {
             let _ = self.speaker.start();
         }
 
-        let device_name = match &config.mic_device_id {
-            Some(id) => {
-                let candidates = vec![id.clone(), "MacBook Pro Microphone".to_string()];
-                resolve_best_device(id, &candidates)
-                    .cloned()
-                    .unwrap_or_else(|| id.clone())
+        let host = cpal::default_host();
+        let input_device = match &config.mic_device_id {
+            Some(id) if id != "default" => {
+                host.input_devices().ok().and_then(|mut devs| {
+                    devs.find(|d| {
+                        d.name()
+                            .map(|n| crate::audio::devices::normalize_device_name(&n) == *id)
+                            .unwrap_or(false)
+                    })
+                })
             }
+            _ => host.default_input_device(),
+        }
+        .or_else(|| host.default_input_device());
+
+        let device_name = match &input_device {
+            Some(d) => d.name().unwrap_or_else(|_| "default".to_string()),
             None => "default".to_string(),
         };
+
+        if let Some(dev) = input_device {
+            if let Ok(default_config) = dev.default_input_config() {
+                let sample_rate = default_config.sample_rate().0;
+                let channels = default_config.channels();
+                if let Ok(mut r) = self.resampler.lock() {
+                    *r = LinearResampler::new(sample_rate, channels);
+                }
+
+                let pipeline_clone = self.clone();
+                let stream_config: cpal::StreamConfig = default_config.into();
+
+                let stream_res = dev.build_input_stream(
+                    &stream_config,
+                    move |data: &[f32], _: &_| {
+                        pipeline_clone.process_samples(data);
+                    },
+                    |err| eprintln!("[audio_pipeline] input stream error: {}", err),
+                    None,
+                );
+
+                if let Ok(s) = stream_res {
+                    let _ = s.play();
+                    if let Ok(mut lock) = self.stream.lock() {
+                        *lock = Some(StreamHolder(s));
+                    }
+                }
+            }
+        }
 
         Ok(AudioSessionState {
             is_running: true,
@@ -85,6 +130,9 @@ impl AudioPipeline {
 
     pub fn stop_session(&self) -> Result<AudioSessionState, String> {
         self.is_running.store(false, Ordering::SeqCst);
+        if let Ok(mut lock) = self.stream.lock() {
+            *lock = None;
+        }
         let _ = self.speaker.stop();
         Ok(AudioSessionState {
             is_running: false,
@@ -115,7 +163,7 @@ impl AudioPipeline {
             false
         };
 
-        if is_speech && !pcm.is_empty() {
+        if !pcm.is_empty() {
             let _ = self.pcm_tx.send(pcm.clone());
         }
 
@@ -143,7 +191,6 @@ mod tests {
         name: &'static str,
         config: AudioSessionConfig,
         expect_running: bool,
-        expect_device: &'static str,
     }
 
     #[test]
@@ -157,7 +204,6 @@ mod tests {
                     vad_enabled: true,
                 },
                 expect_running: true,
-                expect_device: "default",
             },
             PipelineStateTestCase {
                 name: "specific_mic_session",
@@ -167,7 +213,6 @@ mod tests {
                     vad_enabled: true,
                 },
                 expect_running: true,
-                expect_device: "airpods-pro",
             },
         ];
 
@@ -175,7 +220,6 @@ mod tests {
         for case in cases {
             let state = pipeline.start_session(&case.config).unwrap();
             assert_eq!(state.is_running, case.expect_running, "case '{}'", case.name);
-            assert_eq!(state.current_device, case.expect_device, "case '{}'", case.name);
             assert!(pipeline.is_active());
 
             let (pcm, _is_speech) = pipeline.process_samples(&vec![0.5f32; 480]);

@@ -206,15 +206,25 @@ pub async fn configure_stt(
 
     tokio::spawn(async move {
         let engine = base64::engine::general_purpose::STANDARD;
-        while let Ok(pcm_samples) = rx.recv().await {
-            let bytes: Vec<u8> = pcm_samples
-                .iter()
-                .flat_map(|s| s.to_le_bytes())
-                .collect();
-            let encoded = engine.encode(&bytes);
-            let _ = sidecar_clone
-                .call("audio.chunk", json!({ "pcm_base64": encoded }))
-                .await;
+        loop {
+            match rx.recv().await {
+                Ok(pcm_samples) => {
+                    let bytes: Vec<u8> = pcm_samples
+                        .iter()
+                        .flat_map(|s| s.to_le_bytes())
+                        .collect();
+                    let encoded = engine.encode(&bytes);
+                    let _ = sidecar_clone
+                        .call("audio.chunk", json!({ "pcm_base64": encoded }))
+                        .await;
+                }
+                Err(tokio::sync::broadcast::error::RecvError::Lagged(_)) => {
+                    continue;
+                }
+                Err(tokio::sync::broadcast::error::RecvError::Closed) => {
+                    break;
+                }
+            }
         }
     });
 

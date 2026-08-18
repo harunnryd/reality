@@ -4,24 +4,33 @@ import { ShieldCheck, Radio, Sparkles } from "lucide-react";
 
 export const ApiKeyVisual: React.FC = () => {
   return (
-    <Flex direction="column" gap="3" style={{ width: "100%", maxWidth: 320, userSelect: "none" }}>
+    <Flex
+      direction="column"
+      gap="3"
+      style={{
+        width: "100%",
+        maxWidth: 300,
+        userSelect: "none",
+        margin: "auto 0",
+      }}
+    >
       <Card
         size="2"
         style={{
           backgroundColor: "#FFFFFF",
-          boxShadow: "0 12px 24px -8px rgba(0, 0, 0, 0.06)",
+          boxShadow: "0 8px 20px -6px rgba(0, 0, 0, 0.05)",
           borderRadius: 12,
-          padding: 14,
+          padding: "14px 16px",
           border: "1px solid var(--gray-4)",
         }}
       >
         <Flex align="center" justify="between">
-          <Flex align="center" gap="2">
+          <Flex align="center" gap="3">
             <Box
               style={{
-                width: 28,
-                height: 28,
-                borderRadius: 6,
+                width: 32,
+                height: 32,
+                borderRadius: 8,
                 backgroundColor: "rgba(0, 113, 227, 0.1)",
                 color: "#0071E3",
                 display: "flex",
@@ -29,14 +38,14 @@ export const ApiKeyVisual: React.FC = () => {
                 justifyContent: "center",
               }}
             >
-              <Radio size={14} />
+              <Radio size={16} />
             </Box>
             <Box>
-              <Text as="div" size="2" weight="bold" style={{ color: "var(--gray-12)" }}>
+              <Text as="div" size="2" weight="bold" style={{ color: "var(--gray-12)", lineHeight: 1.2 }}>
                 Deepgram Nova-2
               </Text>
-              <Text as="div" size="1" style={{ color: "var(--gray-10)" }}>
-                Live streaming speech-to-text
+              <Text as="div" size="1" style={{ color: "var(--gray-10)", marginTop: 2 }}>
+                Live speech-to-text
               </Text>
             </Box>
           </Flex>
@@ -51,19 +60,19 @@ export const ApiKeyVisual: React.FC = () => {
         size="2"
         style={{
           backgroundColor: "#FFFFFF",
-          boxShadow: "0 12px 24px -8px rgba(0, 0, 0, 0.06)",
+          boxShadow: "0 8px 20px -6px rgba(0, 0, 0, 0.05)",
           borderRadius: 12,
-          padding: 14,
+          padding: "14px 16px",
           border: "1px solid var(--gray-4)",
         }}
       >
         <Flex align="center" justify="between">
-          <Flex align="center" gap="2">
+          <Flex align="center" gap="3">
             <Box
               style={{
-                width: 28,
-                height: 28,
-                borderRadius: 6,
+                width: 32,
+                height: 32,
+                borderRadius: 8,
                 backgroundColor: "var(--green-3)",
                 color: "var(--green-9)",
                 display: "flex",
@@ -71,14 +80,14 @@ export const ApiKeyVisual: React.FC = () => {
                 justifyContent: "center",
               }}
             >
-              <ShieldCheck size={14} />
+              <ShieldCheck size={16} />
             </Box>
             <Box>
-              <Text as="div" size="2" weight="bold" style={{ color: "var(--gray-12)" }}>
+              <Text as="div" size="2" weight="bold" style={{ color: "var(--gray-12)", lineHeight: 1.2 }}>
                 macOS Keychain
               </Text>
-              <Text as="div" size="1" style={{ color: "var(--gray-10)" }}>
-                Hardware encrypted local storage
+              <Text as="div" size="1" style={{ color: "var(--gray-10)", marginTop: 2 }}>
+                Hardware encrypted
               </Text>
             </Box>
           </Flex>
@@ -92,9 +101,9 @@ export const ApiKeyVisual: React.FC = () => {
       <Card
         size="1"
         style={{
-          backgroundColor: "rgba(255, 255, 255, 0.8)",
+          backgroundColor: "rgba(255, 255, 255, 0.75)",
           borderRadius: 10,
-          padding: "10px 12px",
+          padding: "10px 14px",
           border: "1px solid var(--gray-4)",
         }}
       >
@@ -105,7 +114,7 @@ export const ApiKeyVisual: React.FC = () => {
           <Flex align="center" gap="1">
             <Sparkles size={11} color="var(--gray-10)" />
             <Text size="1" color="gray">
-              Direct BYOK inference
+              Direct BYOK
             </Text>
           </Flex>
         </Flex>

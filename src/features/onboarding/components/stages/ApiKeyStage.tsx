@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Key, Lock, ArrowRight, AlertCircle, ExternalLink, ShieldCheck } from "lucide-react";
 import { containerVariants, itemVariants } from "@/styles/animations";
 import { typography } from "@/styles/theme";
+import { deepgramService } from "@/services/deepgramService";
 
 export interface ApiKeyStageProps {
   apiKey: string;
@@ -22,10 +23,14 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
   error,
   onSave,
   onBack,
-  onSkip,
 }) => {
   const [openAiKey, setOpenAiKey] = React.useState(apiKey);
-  const [deepgramKey, setDeepgramKey] = React.useState(deepgramApiKey);
+  const [deepgramKey, setDeepgramKey] = React.useState(() => deepgramApiKey || deepgramService.getApiKey());
+
+  const handleDeepgramChange = (val: string) => {
+    setDeepgramKey(val);
+    deepgramService.setApiKey(val);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,7 +76,7 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
               as="p"
               style={{
                 ...typography.scale.bodyMedium,
-                marginBottom: 16,
+                marginBottom: 18,
                 color: "var(--gray-11)",
               }}
             >
@@ -110,7 +115,7 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
                   type="password"
                   placeholder="8aa709d649248fe8d11eec..."
                   value={deepgramKey}
-                  onChange={(e) => setDeepgramKey(e.target.value)}
+                  onChange={(e) => handleDeepgramChange(e.target.value)}
                   disabled={isSaving}
                   autoFocus
                   style={{
@@ -123,7 +128,7 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
                     <Key size={14} />
                   </TextField.Slot>
                 </TextField.Root>
-                <Text style={{ fontSize: 10.5, color: "var(--gray-10)", marginTop: 2, display: "block" }}>
+                <Text style={{ fontSize: 10.5, color: "var(--gray-10)", marginTop: 3, display: "block" }}>
                   Used for real-time speech transcription
                 </Text>
               </Box>
@@ -172,7 +177,7 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
                     <Lock size={12} />
                   </TextField.Slot>
                 </TextField.Root>
-                <Flex align="center" gap="1" style={{ marginTop: 2 }}>
+                <Flex align="center" gap="1" style={{ marginTop: 3 }}>
                   <ShieldCheck size={11} color="var(--gray-9)" />
                   <Text style={{ fontSize: 10.5, color: "var(--gray-10)" }}>
                     Stored securely in macOS Keychain
@@ -181,7 +186,7 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
               </Box>
 
               {error && (
-                <Callout.Root color="red" size="1" style={{ padding: "6px 10px" }}>
+                <Callout.Root color="red" size="1" style={{ padding: "6px 10px", marginTop: 4 }}>
                   <Callout.Icon>
                     <AlertCircle size={13} />
                   </Callout.Icon>
@@ -193,7 +198,7 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
         </Box>
 
         <motion.div variants={itemVariants}>
-          <Flex gap="2" style={{ marginTop: 16 }}>
+          <Flex gap="3" style={{ marginTop: 24 }}>
             <Button
               type="button"
               size="2"
@@ -203,34 +208,14 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
               onClick={onBack}
               style={{
                 ...typography.scale.button,
-                height: "36px",
-                padding: "0 16px",
+                height: "38px",
+                padding: "0 18px",
                 borderRadius: "8px",
                 cursor: "pointer",
               }}
             >
               Back
             </Button>
-
-            {onSkip && (
-              <Button
-                type="button"
-                size="2"
-                variant="ghost"
-                color="gray"
-                disabled={isSaving}
-                onClick={onSkip}
-                style={{
-                  ...typography.scale.button,
-                  height: "36px",
-                  padding: "0 12px",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                }}
-              >
-                Skip for now
-              </Button>
-            )}
 
             <Button
               type="submit"
@@ -242,9 +227,13 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
               style={{
                 ...typography.scale.button,
                 flex: 1,
-                height: "36px",
+                height: "38px",
                 borderRadius: "8px",
                 cursor: isSaving ? "default" : "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "6px",
               }}
             >
               {isSaving ? "Saving…" : "Continue"}

@@ -72,6 +72,10 @@ export function useOnboardingMachine() {
   useEffect(() => {
     async function init() {
       const isDone = await onboardingStorage.isCompleted();
+      const storedDeepgram = deepgramService.getApiKey();
+      if (storedDeepgram) {
+        dispatch({ type: "SET_DEEPGRAM_API_KEY", apiKey: storedDeepgram });
+      }
       dispatch({ type: "INIT_COMPLETED", completed: isDone });
     }
     void init();
@@ -97,10 +101,17 @@ export function useOnboardingMachine() {
     dispatch({ type: "SET_API_KEY_SAVING", isSaving: true });
     try {
       if (deepgramKey.trim()) {
+        deepgramService.setApiKey(deepgramKey.trim());
         void deepgramService.configure(deepgramKey.trim());
       }
       if (openaiKey.trim()) {
-        await credentialsService.validateAndStoreKey(openaiKey.trim());
+        try {
+          await credentialsService.validateAndStoreKey(openaiKey.trim());
+        } catch {
+          if (!deepgramKey.trim()) {
+            throw new Error("Invalid OpenAI / Anthropic API key");
+          }
+        }
       }
       await onboardingStorage.setCompleted();
       dispatch({ type: "SET_STAGE", stage: "done" });

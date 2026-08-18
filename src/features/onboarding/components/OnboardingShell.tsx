@@ -56,7 +56,6 @@ export const OnboardingShell: React.FC<OnboardingShellProps> = ({ onComplete }) 
 
   return (
     <div
-      {...dragProps}
       style={{
         position: "fixed",
         inset: 0,
@@ -86,9 +85,10 @@ export const OnboardingShell: React.FC<OnboardingShellProps> = ({ onComplete }) 
         }}
       >
         <Flex
+          {...dragProps}
           align="center"
           justify="between"
-          style={{ marginBottom: 20, cursor: "grab" }}
+          style={{ marginBottom: 20, cursor: "grab", userSelect: "none" }}
         >
           <div className="no-drag">
             <WindowControls />
@@ -99,6 +99,7 @@ export const OnboardingShell: React.FC<OnboardingShellProps> = ({ onComplete }) 
             variant="ghost"
             color="gray"
             onClick={handleSkip}
+            className="no-drag"
             style={{ cursor: "pointer", color: "var(--gray-10)", fontSize: 12 }}
           >
             Skip
@@ -124,7 +125,6 @@ export const OnboardingShell: React.FC<OnboardingShellProps> = ({ onComplete }) 
                 error={state.apiKeyError}
                 onSave={(openAiKey, deepgramKey) => saveKeys(openAiKey, deepgramKey)}
                 onBack={() => goToStage("permissions")}
-                onSkip={handleSkip}
               />
             )}
 

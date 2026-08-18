@@ -132,6 +132,7 @@ export const PermissionsStage: React.FC<PermissionsStageProps> = ({
           variant="solid"
           color="gray"
           highContrast
+          className="no-drag"
           onClick={btnConfig.action}
           disabled={isRequesting}
           style={{

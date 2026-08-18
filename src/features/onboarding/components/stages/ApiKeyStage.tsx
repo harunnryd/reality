@@ -32,8 +32,11 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
     deepgramService.setApiKey(val);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (isSaving) return;
     void onSave(openAiKey.trim(), deepgramKey.trim());
   };
@@ -95,6 +98,7 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
                     href="https://console.deepgram.com/signup"
                     target="_blank"
                     rel="noreferrer"
+                    className="no-drag"
                     style={{
                       fontSize: 11,
                       color: "var(--blue-9)",
@@ -118,6 +122,7 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
                   onChange={(e) => handleDeepgramChange(e.target.value)}
                   disabled={isSaving}
                   autoFocus
+                  className="no-drag"
                   style={{
                     ...typography.scale.bodyMedium,
                     height: "36px",
@@ -142,6 +147,7 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
                     href="https://platform.openai.com/api-keys"
                     target="_blank"
                     rel="noreferrer"
+                    className="no-drag"
                     style={{
                       fontSize: 11,
                       color: "var(--blue-9)",
@@ -164,6 +170,7 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
                   value={openAiKey}
                   onChange={(e) => setOpenAiKey(e.target.value)}
                   disabled={isSaving}
+                  className="no-drag"
                   style={{
                     ...typography.scale.bodyMedium,
                     height: "36px",
@@ -201,6 +208,7 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
           <Flex gap="3" style={{ marginTop: 24 }}>
             <Button
               type="button"
+              className="no-drag"
               size="2"
               variant="soft"
               color="gray"
@@ -219,11 +227,14 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
 
             <Button
               type="submit"
+              className="no-drag"
               size="2"
               variant="solid"
               color="gray"
               highContrast
               loading={isSaving}
+              disabled={isSaving}
+              onClick={() => handleSubmit()}
               style={{
                 ...typography.scale.button,
                 flex: 1,

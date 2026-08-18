@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Search, X } from "lucide-react";
-import { Flex } from "@radix-ui/themes";
 
 export interface TopSearchPillProps {
   value: string;

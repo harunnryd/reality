@@ -1,5 +1,3 @@
-import * as React from "react";
-
 export type PersonaMode = "general" | "tech" | "sales" | "executive";
 
 export interface PersonaConfig {

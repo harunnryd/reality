@@ -1,8 +1,7 @@
 import * as React from "react";
 import { WindowControls } from "@/components/WindowControls";
-import { Ghost, Radio, Zap } from "lucide-react";
+import { Ghost, Zap } from "lucide-react";
 import { PersonaMode } from "../../launcher/types";
-import { PERSONA_CONFIGS } from "../../launcher/services/meetingsService";
 
 export interface HudHeaderBarProps {
   formattedTimer: string;
@@ -15,9 +14,7 @@ export const HudHeaderBar: React.FC<HudHeaderBarProps> = ({
   formattedTimer,
   isStealth,
   onToggleStealth,
-  persona = "tech",
 }) => {
-  const currentPersona = PERSONA_CONFIGS[persona] || PERSONA_CONFIGS.tech;
 
   return (
     <header

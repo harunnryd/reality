@@ -17,7 +17,7 @@ function findNextUpcomingEvent(events: CalendarEventItem[]): CalendarEventItem |
 function formatAttendeeList(attendees: Array<{ name: string; email: string }>): string {
   if (attendees.length === 0) return "No attendees";
   if (attendees.length <= 2) return attendees.map((a) => a.name).join(", ");
-  return `${attendees[0].name}, ${attendees[1].name} +${attendees.length - 2} more`;
+  return `${attendees[0]?.name || ""}, ${attendees[1]?.name || ""} +${attendees.length - 2} more`;
 }
 
 function getPlatformBadgeColor(platform: CalendarEventItem["platform"]): string {
@@ -94,7 +94,7 @@ describe("Launcher - Calendar & Schedule Unit Tests", () => {
     });
 
     it("formats 3+ attendees with compact overflow count", () => {
-      expect(formatAttendeeList(sampleEvents[0].attendees)).toBe("Sarah Lin, Dimas Prasetyo +1 more");
+      expect(formatAttendeeList(sampleEvents[0]?.attendees || [])).toBe("Sarah Lin, Dimas Prasetyo +1 more");
     });
   });
 

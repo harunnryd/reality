@@ -21,7 +21,7 @@ import {
 import { WindowControls } from "@/components/WindowControls";
 import { useLiveMeetingSession } from "../hooks/useLiveMeetingSession";
 import { LiveMeetingConfig } from "../types";
-import { Meeting, PersonaMode } from "../../launcher/types";
+import { Meeting, PersonaMode, PersonaConfig } from "../../launcher/types";
 import { PERSONA_CONFIGS } from "../../launcher/services/meetingsService";
 import { visionService, stealthService } from "@/services";
 import { typography } from "@/styles/theme";
@@ -51,7 +51,7 @@ export const MeetingHudShell: React.FC<MeetingHudShellProps> = ({
   const [copiedCode, setCopiedCode] = React.useState(false);
 
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
-  const personaConfig = PERSONA_CONFIGS[selectedPersona] || PERSONA_CONFIGS.tech;
+  const personaConfig = PERSONA_CONFIGS[selectedPersona] || (PERSONA_CONFIGS["tech"] as PersonaConfig);
 
   const sessionConfig = React.useMemo<LiveMeetingConfig>(() => ({
     title: config?.title || "Architecture & AI Strategy Review",

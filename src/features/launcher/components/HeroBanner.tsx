@@ -31,7 +31,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
 }) => {
   const activeStealth = isStealthActive ?? isStealth ?? false;
   const activeRefresh = onRefresh ?? onRefreshMeetings;
-  const persona = providedPersona || PERSONA_CONFIGS[selectedPersona] || PERSONA_CONFIGS.general;
+  const persona = providedPersona || PERSONA_CONFIGS[selectedPersona] || (PERSONA_CONFIGS["general"] as PersonaConfig);
   const [activeMeetingApps, setActiveMeetingApps] = React.useState<ActiveMeetingApp[]>([]);
 
   React.useEffect(() => {
@@ -40,7 +40,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
     });
   }, []);
 
-  const activeAppName = activeMeetingApps.length > 0 ? activeMeetingApps[0].name.replace(" Workplace", "").replace(" Call", "") : null;
+  const activeAppName = activeMeetingApps.length > 0 && activeMeetingApps[0] ? activeMeetingApps[0].name.replace(" Workplace", "").replace(" Call", "") : null;
 
   return (
     <div

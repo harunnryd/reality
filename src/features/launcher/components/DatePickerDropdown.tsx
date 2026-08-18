@@ -159,9 +159,14 @@ export const DatePickerDropdown: React.FC<DatePickerDropdownProps> = ({
                 type="date"
                 onChange={(e) => {
                   if (e.target.value) {
-                    const [y, m, d] = e.target.value.split("-").map(Number);
-                    onSelectCustomDate?.(new Date(y, m - 1, d));
-                    setIsOpen(false);
+                    const parts = e.target.value.split("-").map(Number);
+                    const y = parts[0];
+                    const m = parts[1];
+                    const d = parts[2];
+                    if (typeof y === "number" && typeof m === "number" && typeof d === "number") {
+                      onSelectCustomDate?.(new Date(y, m - 1, d));
+                      setIsOpen(false);
+                    }
                   }
                 }}
                 style={{

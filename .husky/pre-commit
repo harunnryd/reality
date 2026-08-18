@@ -1,0 +1,4 @@
+pnpm exec vitest run --run
+pnpm exec tsc --noEmit
+cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
+cargo test --manifest-path src-tauri/Cargo.toml

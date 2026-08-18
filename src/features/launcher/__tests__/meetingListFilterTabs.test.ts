@@ -69,13 +69,13 @@ describe("Launcher - Meeting List Filter Tabs & Aggregation", () => {
   it("filters meetings accurately by title keyword", () => {
     const results = filterMeetingsByQuery(sampleMeetings, "Vector");
     expect(results.length).toBe(1);
-    expect(results[0].id).toBe("m-1");
+    expect(results[0]?.id).toBe("m-1");
   });
 
   it("filters meetings accurately by action item content", () => {
     const results = filterMeetingsByQuery(sampleMeetings, "addendum");
     expect(results.length).toBe(1);
-    expect(results[0].id).toBe("m-2");
+    expect(results[0]?.id).toBe("m-2");
   });
 
   it("returns empty array for non-matching search term (triggering empty state)", () => {

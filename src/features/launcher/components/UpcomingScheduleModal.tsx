@@ -5,7 +5,6 @@ import {
   Clock,
   Video,
   X,
-  Users,
 } from "lucide-react";
 import { springEase } from "@/styles/theme";
 
@@ -43,20 +42,19 @@ const SCHEDULE_ITEMS: CalendarEventItem[] = [
     attendees: [
       { name: "David Vance", email: "david.vance@horizonfintech.io" },
       { name: "Elena Rostova", email: "elena.rostova@horizonfintech.io" },
-      { name: "Rahmat Hidayat", email: "rahmat@acme.corp" },
+      { name: "Sarah Lin", email: "sarah@sigmawave.ai" },
+      { name: "Alex Chen", email: "alex@sigmawave.ai" },
     ],
   },
   {
     id: "evt-real-3",
-    title: "Executive Strategy: Q4 Roadmap & AI Copilot Monetization",
-    time: "5:00 PM - 5:45 PM",
-    duration: "45m",
-    platform: "Google Meet",
+    title: "Enterprise Deal Closing & Multi-Seat Pricing Sync",
+    time: "17:00 - 17:30",
+    duration: "30m",
+    platform: "Microsoft Teams",
     attendees: [
-      { name: "Maya Anderson", email: "maya@acme.corp" },
-      { name: "Kevin Wijaya", email: "kevin@acme.corp" },
-      { name: "Amanda Cole", email: "amanda@acme.corp" },
-      { name: "Sarah Lin", email: "sarah.lin@acme.corp" },
+      { name: "David Vance", email: "david.vance@enterprise.com" },
+      { name: "Jessica Miller", email: "jessica.m@enterprise.com" },
     ],
   },
 ];
@@ -71,14 +69,19 @@ const AVATAR_COLORS = [
 
 function getInitials(name: string): string {
   const parts = name.trim().split(" ");
-  if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  if (parts.length >= 2 && parts[0] && parts[1]) {
+    const first = parts[0][0] || "";
+    const second = parts[1][0] || "";
+    return `${first}${second}`.toUpperCase();
+  }
   return name.slice(0, 2).toUpperCase();
 }
 
-function getAvatarStyle(name: string) {
+function getAvatarStyle(name: string): { bg: string; text: string } {
   let hash = 0;
   for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) | 0;
-  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+  const match = AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+  return match || { bg: "#E0E7FF", text: "#3730A3" };
 }
 
 export interface UpcomingScheduleModalProps {

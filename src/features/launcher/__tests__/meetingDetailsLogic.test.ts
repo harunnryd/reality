@@ -69,9 +69,9 @@ describe("Launcher - Meeting Details View Logic", () => {
       ];
 
       const renamed = renameSpeakerInTranscript(transcript, "Speaker 1", "Sarah Lin");
-      expect(renamed[0].speaker).toBe("Sarah Lin");
-      expect(renamed[1].speaker).toBe("Speaker 2");
-      expect(renamed[2].speaker).toBe("Sarah Lin");
+      expect(renamed[0]?.speaker).toBe("Sarah Lin");
+      expect(renamed[1]?.speaker).toBe("Speaker 2");
+      expect(renamed[2]?.speaker).toBe("Sarah Lin");
     });
   });
 

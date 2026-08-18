@@ -1,4 +1,4 @@
-import type { PermissionStatus, PermissionsSnapshot } from "@/services/permissionsService";
+import type { PermissionsSnapshot } from "@/services/permissionsService";
 
 export type OnboardingStage = "permissions" | "api_key" | "ready" | "done";
 

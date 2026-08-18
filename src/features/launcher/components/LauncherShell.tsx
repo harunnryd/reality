@@ -11,7 +11,7 @@ import { UpcomingScheduleModal, CalendarEventItem } from "./UpcomingScheduleModa
 import { SettingsModal } from "./SettingsModal";
 import { ProfileIntelligenceModal } from "./ProfileIntelligenceModal";
 import { useLauncherState } from "../hooks/useLauncherState";
-import { useWindowDrag, useGlobalShortcuts } from "@/hooks";
+import { useGlobalShortcuts } from "@/hooks";
 import { springEase } from "@/styles/theme";
 
 export interface LauncherShellProps {
@@ -41,7 +41,6 @@ export const LauncherShell: React.FC<LauncherShellProps> = ({
   const [isScheduleModalOpen, setIsScheduleModalOpen] = React.useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = React.useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
-  const dragProps = useWindowDrag();
   const searchInputRef = React.useRef<HTMLInputElement>(null);
 
   useGlobalShortcuts({
@@ -69,7 +68,7 @@ export const LauncherShell: React.FC<LauncherShellProps> = ({
     },
   });
 
-  const handleStartForEvent = (event: CalendarEventItem) => {
+  const handleStartForEvent = (_event: CalendarEventItem) => {
     setIsScheduleModalOpen(false);
     onStartMeeting();
   };

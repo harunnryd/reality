@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Sparkles, Copy, Check, Code2, ArrowUpRight } from "lucide-react";
+import { Sparkles, Copy, Check, Code2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { LiveAiSuggestion } from "../types";
 
@@ -10,7 +10,6 @@ export interface LiveAiCueCardProps {
 
 export const LiveAiCueCard: React.FC<LiveAiCueCardProps> = ({
   suggestion,
-  onApplyPrompt,
 }) => {
   const [copied, setCopied] = React.useState(false);
   const [copiedCode, setCopiedCode] = React.useState(false);

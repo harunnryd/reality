@@ -1,6 +1,6 @@
 import * as React from "react";
-import { Clock, CheckSquare, Sparkles, ChevronRight, Search, X } from "lucide-react";
-import { Meeting, PersonaMode } from "../types";
+import { CheckSquare, Sparkles, ChevronRight, Search, X } from "lucide-react";
+import { Meeting, PersonaConfig } from "../types";
 import { PERSONA_CONFIGS } from "../services/meetingsService";
 import { DatePickerDropdown, DateFilterOption } from "./DatePickerDropdown";
 
@@ -12,7 +12,6 @@ export interface MeetingListProps {
   onStartMeeting?: () => void;
   onRefresh?: () => void | Promise<void>;
   isSearching?: boolean;
-  selectedPersona?: PersonaMode;
   searchQuery?: string;
   onClearSearch?: () => void;
 }
@@ -23,11 +22,6 @@ export const MeetingList: React.FC<MeetingListProps> = ({
   meetings,
   selectedMeetingId,
   onSelectMeeting,
-  onDeleteMeeting,
-  onStartMeeting,
-  onRefresh,
-  isSearching = false,
-  selectedPersona = "general",
   searchQuery = "",
   onClearSearch,
 }) => {
@@ -207,7 +201,7 @@ export const MeetingList: React.FC<MeetingListProps> = ({
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           {filteredMeetings.map((meeting) => {
             const isSelected = selectedMeetingId === meeting.id;
-            const persona = PERSONA_CONFIGS[meeting.persona] || PERSONA_CONFIGS.general;
+            const persona = PERSONA_CONFIGS[meeting.persona] || (PERSONA_CONFIGS["general"] as PersonaConfig);
 
             return (
               <div

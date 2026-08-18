@@ -219,8 +219,8 @@ export function useLiveMeetingSession(config?: LiveMeetingConfig) {
   const [isOcrScanning, setIsOcrScanning] = useState(false);
 
   const topicKey = config?.persona === "sales" ? "sales" : config?.persona === "executive" ? "executive" : "tech";
-  const initialHistory = INITIAL_CONVERSATION_HISTORY[topicKey] || INITIAL_CONVERSATION_HISTORY.tech;
-  const streamQueue = CONTINUOUS_STREAM_QUEUE[topicKey] || CONTINUOUS_STREAM_QUEUE.tech;
+  const initialHistory = INITIAL_CONVERSATION_HISTORY[topicKey] || (INITIAL_CONVERSATION_HISTORY["tech"] as LiveTranscriptMessage[]);
+  const streamQueue = CONTINUOUS_STREAM_QUEUE[topicKey] || (CONTINUOUS_STREAM_QUEUE["tech"] as typeof CONTINUOUS_STREAM_QUEUE.tech);
 
   const [messages, setMessages] = useState<LiveTranscriptMessage[]>(initialHistory);
 
@@ -248,28 +248,30 @@ export function useLiveMeetingSession(config?: LiveMeetingConfig) {
 
   useEffect(() => {
     const streamInterval = setInterval(() => {
-      if (streamQueueIndexRef.current < streamQueue.length) {
+      if (streamQueue && streamQueueIndexRef.current < streamQueue.length) {
         const item = streamQueue[streamQueueIndexRef.current];
         streamQueueIndexRef.current += 1;
 
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: `msg-stream-${Date.now()}-${streamQueueIndexRef.current}`,
-            speaker: item.speaker,
-            text: item.text,
-            timestamp: elapsedSeconds || 135 + streamQueueIndexRef.current * 4,
-          },
-        ]);
+        if (item) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `msg-stream-${Date.now()}-${streamQueueIndexRef.current}`,
+              speaker: item.speaker,
+              text: item.text,
+              timestamp: elapsedSeconds || 135 + streamQueueIndexRef.current * 4,
+            },
+          ]);
 
-        if (item.suggestion) {
-          setCurrentSuggestion({
-            id: `sug-${Date.now()}-${streamQueueIndexRef.current}`,
-            title: item.suggestion.title,
-            summary: item.suggestion.summary,
-            confidence: item.suggestion.confidence,
-            codeSnippet: item.suggestion.codeSnippet,
-          });
+          if (item.suggestion) {
+            setCurrentSuggestion({
+              id: `sug-${Date.now()}-${streamQueueIndexRef.current}`,
+              title: item.suggestion.title,
+              summary: item.suggestion.summary,
+              confidence: item.suggestion.confidence,
+              codeSnippet: item.suggestion.codeSnippet,
+            });
+          }
         }
       }
     }, 3500);

@@ -1,6 +1,5 @@
 import * as React from "react";
-import { Calendar, Clock, Video, ChevronRight, Sparkles } from "lucide-react";
-import { motion } from "framer-motion";
+import { Calendar, Video, ChevronRight } from "lucide-react";
 
 export interface CalendarEvent {
   id: string;
@@ -21,7 +20,7 @@ export const UpcomingCalendarCard: React.FC<UpcomingCalendarCardProps> = ({
   onJoinMeeting,
   onOpenSchedule,
 }) => {
-  const [upcomingEvent, setUpcomingEvent] = React.useState<CalendarEvent | null>({
+  const [upcomingEvent] = React.useState<CalendarEvent | null>({
     id: "evt-real-1",
     title: "Distributed Vector Search & Hybrid RAG Review",
     startTime: "14:00",

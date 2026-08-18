@@ -1,6 +1,5 @@
 import * as React from "react";
 import {
-  Clock,
   CheckCircle2,
   Circle,
   MessageSquare,
@@ -21,31 +20,28 @@ import {
   ChevronDown,
   HelpCircle,
   ShieldAlert,
-  ArrowRight,
   ExternalLink,
   Edit2,
   Code2,
   History,
   Send,
   X,
-  Bot,
-  User,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Meeting, ActionItemDetail, KeyDecisionDetail, OpenQuestionDetail, RiskDetail } from "../types";
+import { Meeting, ActionItemDetail, PersonaConfig } from "../types";
 import { PERSONA_CONFIGS } from "../services/meetingsService";
 import { springEase } from "@/styles/theme";
 
 export interface MeetingDetailsViewProps {
   meeting: Meeting;
   onBack: () => void;
-  onDelete?: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
-type DetailTab = "summary" | "transcript" | "usage";
-type FollowUpTone = "professional" | "warm" | "concise" | "friendly";
+type DetailTab = "summary" | "actions" | "keypoints" | "transcript" | "usage";
+type FollowUpTone = "professional" | "concise" | "action-oriented" | "warm" | "friendly";
 
-interface MeetingUsageItem {
+export interface MeetingUsageItem {
   id: string;
   timestamp: number;
   question: string;
@@ -63,7 +59,7 @@ export const MeetingDetailsView: React.FC<MeetingDetailsViewProps> = ({
   onBack,
   onDelete,
 }) => {
-  const persona = PERSONA_CONFIGS[meeting.persona] || PERSONA_CONFIGS.general;
+  const persona = PERSONA_CONFIGS[meeting.persona] || (PERSONA_CONFIGS["general"] as PersonaConfig);
   const [activeTab, setActiveTab] = React.useState<DetailTab>("summary");
   const [copiedSummary, setCopiedSummary] = React.useState(false);
   const [copiedTranscript, setCopiedTranscript] = React.useState(false);
@@ -108,7 +104,7 @@ export const MeetingDetailsView: React.FC<MeetingDetailsViewProps> = ({
   ]);
   const [isChatResponding, setIsChatResponding] = React.useState(false);
 
-  const [usageHistory, setUsageHistory] = React.useState<MeetingUsageItem[]>([
+  const [usageHistory] = React.useState<MeetingUsageItem[]>([
     {
       id: "u-1",
       timestamp: 45,
@@ -479,25 +475,23 @@ ${transcriptLines.map((t) => `**${speakerLabels[t.speaker] || t.speaker}**: ${t.
               <span>Export .md</span>
             </button>
 
-            {onDelete && (
-              <button
-                onClick={() => setShowMoreMenu(!showMoreMenu)}
-                title="More Options"
-                style={{
-                  padding: "4px 6px",
-                  borderRadius: 6,
-                  border: "1px solid rgba(0, 0, 0, 0.08)",
-                  backgroundColor: "#FFFFFF",
-                  color: "#6E6E73",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <MoreHorizontal size={13} />
-              </button>
-            )}
+            <button
+              onClick={() => setShowMoreMenu(!showMoreMenu)}
+              title="More Options"
+              style={{
+                padding: "4px 6px",
+                borderRadius: 6,
+                border: "1px solid rgba(0, 0, 0, 0.08)",
+                backgroundColor: "#FFFFFF",
+                color: "#6E6E73",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <MoreHorizontal size={13} />
+            </button>
 
             <AnimatePresence>
               {showMoreMenu && (

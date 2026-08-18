@@ -36,9 +36,9 @@ describe("Launcher - Meetings Service", () => {
     it.each(personaCases)("resolves config for persona $id", ({ id, label, badge, icon }) => {
       const config = PERSONA_CONFIGS[id];
       expect(config).toBeDefined();
-      expect(config.label).toBe(label);
-      expect(config.badgeColor).toBe(badge);
-      expect(config.icon).toBe(icon);
+      expect(config?.label).toBe(label);
+      expect(config?.badgeColor).toBe(badge);
+      expect(config?.icon).toBe(icon);
     });
   });
 

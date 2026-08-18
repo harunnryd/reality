@@ -56,7 +56,7 @@ function matchSkillsToJobDescription(skills: string[], jdText: string): { matche
 }
 
 function generateCoverLetterPitch(
-  name: string,
+  _name: string,
   targetCompany: string,
   targetRole: string,
   tone: "confident" | "formal" | "technical"

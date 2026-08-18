@@ -16,7 +16,8 @@ function calculateTalkRatios(messages: LiveTranscriptMessage[]): Record<string, 
   }
   const ratios: Record<string, number> = {};
   for (const speaker of Object.keys(counts)) {
-    ratios[speaker] = Math.round((counts[speaker] / messages.length) * 100);
+    const count = counts[speaker] || 0;
+    ratios[speaker] = Math.round((count / messages.length) * 100);
   }
   return ratios;
 }

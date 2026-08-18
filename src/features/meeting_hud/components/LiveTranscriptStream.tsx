@@ -1,6 +1,6 @@
 import * as React from "react";
 import { motion } from "framer-motion";
-import { Radio, User, Bot, Sparkles } from "lucide-react";
+import { User, Sparkles } from "lucide-react";
 import { LiveTranscriptMessage } from "../types";
 
 export interface LiveTranscriptStreamProps {

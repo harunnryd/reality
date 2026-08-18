@@ -1,7 +1,7 @@
 import * as React from "react";
 import { DropdownMenu, Button, Flex, Text } from "@radix-ui/themes";
 import { Sparkles, Code, TrendingUp, Shield, ChevronDown, Check } from "lucide-react";
-import { PersonaMode } from "../types";
+import { PersonaConfig, PersonaMode } from "../types";
 import { PERSONA_CONFIGS } from "../services/meetingsService";
 
 export interface PersonaSelectorProps {
@@ -20,7 +20,7 @@ export const PersonaSelector: React.FC<PersonaSelectorProps> = ({
   selectedPersona,
   onSelectPersona,
 }) => {
-  const current = PERSONA_CONFIGS[selectedPersona] || PERSONA_CONFIGS.general;
+  const current = PERSONA_CONFIGS[selectedPersona] || (PERSONA_CONFIGS["general"] as PersonaConfig);
 
   return (
     <DropdownMenu.Root>

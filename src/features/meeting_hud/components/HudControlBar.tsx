@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Mic, MicOff, Camera, Sparkles, Send, Square, Command } from "lucide-react";
+import { Mic, MicOff, Camera, Sparkles, Send, Square } from "lucide-react";
 
 export interface HudControlBarProps {
   isMicActive: boolean;

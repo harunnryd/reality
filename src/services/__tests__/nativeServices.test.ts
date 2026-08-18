@@ -23,7 +23,7 @@ describe("Native Services - Table-Driven Unit Tests", () => {
 
     const devices = await audioService.listInputDevices();
     expect(devices.length).toBe(2);
-    expect(devices[0].name).toBe("Default System Microphone");
+    expect(devices[0]?.name).toBe("Default System Microphone");
   });
 
   it("fetches audio output devices list via Tauri invoke", async () => {
@@ -33,7 +33,7 @@ describe("Native Services - Table-Driven Unit Tests", () => {
 
     const devices = await audioService.listOutputDevices();
     expect(devices.length).toBe(1);
-    expect(devices[0].id).toBe("default_speaker");
+    expect(devices[0]?.id).toBe("default_speaker");
   });
 
   it("handles audio session lifecycle via Tauri invoke", async () => {
@@ -75,7 +75,7 @@ describe("Native Services - Table-Driven Unit Tests", () => {
 
     const apps = await systemService.detectActiveMeetingApps();
     expect(apps.length).toBe(1);
-    expect(apps[0].platform).toBe("zoom");
+    expect(apps[0]?.platform).toBe("zoom");
   });
 
   it("sets process disguise via Tauri invoke", async () => {
@@ -136,14 +136,14 @@ describe("Native Services - Table-Driven Unit Tests", () => {
 
     const shortcuts = await shortcutsService.getGlobalShortcuts();
     expect(shortcuts.length).toBe(1);
-    expect(shortcuts[0].id).toBe("toggle_hud");
+    expect(shortcuts[0]?.id).toBe("toggle_hud");
   });
 
   it("handles audio device fallback on error", async () => {
     mockInvoke.mockRejectedValueOnce(new Error("bridge error"));
     const devices = await audioService.listInputDevices();
     expect(devices.length).toBe(1);
-    expect(devices[0].id).toBe("default");
+    expect(devices[0]?.id).toBe("default");
   });
 
   it("applies stealth mode via Tauri invoke", async () => {

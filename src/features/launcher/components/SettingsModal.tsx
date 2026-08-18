@@ -7,7 +7,6 @@ import {
   Cpu,
   Keyboard,
   Shield,
-  Zap,
 } from "lucide-react";
 import { PERSONA_CONFIGS } from "../services/meetingsService";
 import { PersonaMode } from "../types";

@@ -8,14 +8,7 @@ import {
   Building2,
   Mail,
   Globe,
-  Upload,
   Sparkles,
-  Check,
-  Briefcase,
-  Plus,
-  Trash2,
-  Search,
-  ExternalLink,
 } from "lucide-react";
 import { springEase } from "@/styles/theme";
 

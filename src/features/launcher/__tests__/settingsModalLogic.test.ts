@@ -1,7 +1,5 @@
 import { describe, it, expect } from "vitest";
 
-type SettingsTab = "general" | "audio" | "models" | "shortcuts" | "about";
-
 function validateApiKeyInput(key: string): { isValid: boolean; provider?: "openai" | "anthropic" | "custom" } {
   const trimmed = key.trim();
   if (!trimmed) return { isValid: false };

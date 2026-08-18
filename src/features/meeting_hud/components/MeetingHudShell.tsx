@@ -331,6 +331,41 @@ export const MeetingHudShell: React.FC<MeetingHudShellProps> = ({
             gap: 12,
           }}
         >
+          {messages.length === 0 && (
+            <div
+              style={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                padding: 24,
+                textAlign: "center",
+              }}
+            >
+              <div
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: "50%",
+                  backgroundColor: "rgba(0, 113, 227, 0.08)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Sparkles size={16} color="#0071E3" />
+              </div>
+              <div style={{ ...typography.scale.caption, fontWeight: 550, color: "#64748B" }}>
+                Listening to meeting audio...
+              </div>
+              <div style={{ ...typography.scale.micro, color: "#94A3B8" }}>
+                Speak into your mic or meeting participant audio
+              </div>
+            </div>
+          )}
+
           {messages.map((m) => {
             const isUser = m.speaker.toLowerCase() === "you";
             const isRealityAI = m.speaker.toLowerCase().includes("reality") || m.speaker.toLowerCase().includes("ai");

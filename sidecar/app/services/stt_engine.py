@@ -13,7 +13,7 @@ class TranscriptResult(BaseModel):
     text: str
     is_final: bool
     confidence: float = 1.0
-    speaker: str = "You (Live Mic)"
+    speaker: str = "Meeting (Live)"
 
 
 class DeepgramStreamingSTT:
@@ -84,7 +84,7 @@ class DeepgramStreamingSTT:
         self._log("websocket opened")
         if self._live:
             try:
-                await self._live.send(json.dumps({"type": "KeepAlive"}))
+                await self._live.keep_alive()
             except Exception:
                 pass
         await self._flush_buffer()
@@ -125,8 +125,12 @@ class DeepgramStreamingSTT:
             self._log(f"transcript parse error: {exc}")
 
     async def _on_close(self, *args: Any, **kwargs: Any) -> None:
-        self._is_active = False
         self._log("websocket closed")
+        if self._is_active and self._api_key:
+            self._log("auto-reconnecting to Deepgram...")
+            await asyncio.sleep(1)
+            if self._is_active:
+                await self._connect()
 
     async def _on_error(self, *args: Any, **kwargs: Any) -> None:
         self._log(f"websocket error: {args} {kwargs}")
@@ -185,7 +189,7 @@ class DeepgramStreamingSTT:
                 await asyncio.sleep(3)
                 if self._is_active and self._live:
                     try:
-                        await self._live.send(json.dumps({"type": "KeepAlive"}))
+                        await self._live.keep_alive()
                     except Exception:
                         pass
 

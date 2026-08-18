@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use serde_json::Value;
+use serde_json::{json, Value};
 use tauri::{AppHandle, Emitter};
 use tauri_plugin_shell::process::{CommandChild, CommandEvent};
 use tauri_plugin_shell::ShellExt;
@@ -85,6 +85,24 @@ impl SidecarClient {
             Some(err) => Err(SidecarError::Remote(format!("[{}] {}", err.code, err.message))),
             None => Ok(response.result.unwrap_or(Value::Null)),
         }
+    }
+
+    pub async fn notify(&self, method: &str, params: Value) -> Result<(), SidecarError> {
+        let notification = json!({
+            "jsonrpc": "2.0",
+            "method": method,
+            "params": params,
+        });
+        let mut line = serde_json::to_string(&notification).map_err(|e| SidecarError::Call(e.to_string()))?;
+        line.push('\n');
+
+        self.child
+            .lock()
+            .await
+            .write(line.as_bytes())
+            .map_err(|e| SidecarError::Call(e.to_string()))?;
+
+        Ok(())
     }
 }
 

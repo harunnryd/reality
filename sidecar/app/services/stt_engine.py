@@ -34,6 +34,9 @@ class DeepgramStreamingSTT:
         if not self._api_key:
             return {"status": "error", "message": "empty api key"}
 
+        if self._is_active and self._live is not None:
+            return {"status": "ok", "provider": "deepgram", "model": "nova-2", "reused": True}
+
         await self._connect()
         return {"status": "ok", "provider": "deepgram", "model": "nova-2"}
 
@@ -79,17 +82,22 @@ class DeepgramStreamingSTT:
     async def _on_open(self, *args: Any, **kwargs: Any) -> None:
         self._is_active = True
         self._log("websocket opened")
+        if self._live:
+            try:
+                await self._live.send(json.dumps({"type": "KeepAlive"}))
+            except Exception:
+                pass
         await self._flush_buffer()
 
     async def _on_transcript(self, *args: Any, **kwargs: Any) -> None:
         try:
-            result = None
-            for a in args:
-                if hasattr(a, "channel"):
-                    result = a
-                    break
+            result = kwargs.get("result")
             if not result:
-                result = kwargs.get("result")
+                for a in args:
+                    if hasattr(a, "channel"):
+                        result = a
+                        break
+
             if not result or not hasattr(result, "channel"):
                 return
 
@@ -100,6 +108,8 @@ class DeepgramStreamingSTT:
 
             is_final = getattr(result, "is_final", False) or getattr(result, "speech_final", False)
             confidence = getattr(alt, "confidence", 1.0)
+
+            self._log(f"transcript received: {transcript.strip()}")
 
             self._emit(
                 "transcript.delta",
@@ -156,10 +166,6 @@ class DeepgramStreamingSTT:
 
         if self._keepalive_task and not self._keepalive_task.done():
             self._keepalive_task.cancel()
-            try:
-                await self._keepalive_task
-            except asyncio.CancelledError:
-                pass
             self._keepalive_task = None
 
         if self._live:
@@ -176,7 +182,7 @@ class DeepgramStreamingSTT:
     def _start_keepalive(self) -> None:
         async def _keepalive_loop() -> None:
             while self._is_active and self._live:
-                await asyncio.sleep(4)
+                await asyncio.sleep(3)
                 if self._is_active and self._live:
                     try:
                         await self._live.send(json.dumps({"type": "KeepAlive"}))

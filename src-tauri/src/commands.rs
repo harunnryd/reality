@@ -215,7 +215,7 @@ pub async fn configure_stt(
                         .collect();
                     let encoded = engine.encode(&bytes);
                     let _ = sidecar_clone
-                        .call("audio.chunk", json!({ "pcm_base64": encoded }))
+                        .notify("audio.chunk", json!({ "pcm_base64": encoded }))
                         .await;
                 }
                 Err(tokio::sync::broadcast::error::RecvError::Lagged(_)) => {

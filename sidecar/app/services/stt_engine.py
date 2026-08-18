@@ -43,7 +43,7 @@ class DeepgramStreamingSTT:
             from deepgram import DeepgramClient, LiveOptions, LiveTranscriptionEvents
 
             client = DeepgramClient(self._api_key)
-            self._live = client.listen.live.v("1")
+            self._live = client.listen.asyncwebsocket.v("1")
 
             options = LiveOptions(
                 model="nova-2",
@@ -63,24 +63,25 @@ class DeepgramStreamingSTT:
             self._live.on(LiveTranscriptionEvents.Close, self._on_close)
             self._live.on(LiveTranscriptionEvents.Error, self._on_error)
 
-            started = self._live.start(options)
+            started = await self._live.start(options)
             if started:
                 self._is_active = True
                 self._start_keepalive()
-                self._log("connected to Deepgram Nova-2")
+                self._log("connected to Deepgram Nova-2 via AsyncLiveWebSocket")
+                await self._flush_buffer()
             else:
-                self._log("failed to start Deepgram connection")
+                self._log("failed to start Deepgram async connection")
 
         except Exception as exc:
             self._log(f"connection error: {exc}")
             self._is_active = False
 
-    def _on_open(self, *args: Any, **kwargs: Any) -> None:
+    async def _on_open(self, *args: Any, **kwargs: Any) -> None:
         self._is_active = True
         self._log("websocket opened")
-        self._flush_buffer()
+        await self._flush_buffer()
 
-    def _on_transcript(self, *args: Any, **kwargs: Any) -> None:
+    async def _on_transcript(self, *args: Any, **kwargs: Any) -> None:
         try:
             result = None
             for a in args:
@@ -100,21 +101,24 @@ class DeepgramStreamingSTT:
             is_final = getattr(result, "is_final", False) or getattr(result, "speech_final", False)
             confidence = getattr(alt, "confidence", 1.0)
 
-            self._emit("transcript.delta", {
-                "text": transcript.strip(),
-                "speaker": "You (Live Mic)",
-                "is_final": is_final,
-                "confidence": confidence,
-                "channel": "mic",
-            })
+            self._emit(
+                "transcript.delta",
+                {
+                    "text": transcript.strip(),
+                    "speaker": "You",
+                    "is_final": is_final,
+                    "confidence": confidence,
+                    "channel": "mic",
+                },
+            )
         except Exception as exc:
             self._log(f"transcript parse error: {exc}")
 
-    def _on_close(self, *args: Any, **kwargs: Any) -> None:
+    async def _on_close(self, *args: Any, **kwargs: Any) -> None:
         self._is_active = False
         self._log("websocket closed")
 
-    def _on_error(self, *args: Any, **kwargs: Any) -> None:
+    async def _on_error(self, *args: Any, **kwargs: Any) -> None:
         self._log(f"websocket error: {args} {kwargs}")
 
     def feed_audio(self, pcm_base64: str) -> None:
@@ -130,18 +134,22 @@ class DeepgramStreamingSTT:
             return
 
         try:
-            self._live.send(raw)
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                asyncio.create_task(self._live.send(raw))
+            else:
+                loop.run_until_complete(self._live.send(raw))
         except Exception as exc:
             self._log(f"send error: {exc}")
 
-    def _flush_buffer(self) -> None:
+    async def _flush_buffer(self) -> None:
         if not self._live:
             return
         buffered = self._buffer[:]
         self._buffer.clear()
         for chunk in buffered:
             try:
-                self._live.send(chunk)
+                await self._live.send(chunk)
             except Exception:
                 pass
         if buffered:
@@ -160,7 +168,7 @@ class DeepgramStreamingSTT:
 
         if self._live:
             try:
-                self._live.finish()
+                await self._live.finish()
             except Exception:
                 pass
             self._live = None
@@ -175,11 +183,11 @@ class DeepgramStreamingSTT:
                 await asyncio.sleep(8)
                 if self._is_active and self._live:
                     try:
-                        self._live.keep_alive()
+                        await self._live.keep_alive()
                     except Exception:
                         pass
 
-        self._keepalive_task = asyncio.ensure_future(_keepalive_loop())
+        self._keepalive_task = asyncio.create_task(_keepalive_loop())
 
     def _log(self, message: str) -> None:
         print(f"[stt_engine] {message}", file=sys.stderr, flush=True)

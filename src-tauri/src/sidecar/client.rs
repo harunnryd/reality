@@ -127,6 +127,7 @@ async fn handle_line(line: &str, pending: &Pending, app: &AppHandle) {
             }
         }
         SidecarMessage::Notification(notification) => {
+            eprintln!("[sidecar_client] emit notification: method={}, params={}", notification.method, notification.params);
             let _ = app.emit(&notification.method, notification.params);
         }
     }

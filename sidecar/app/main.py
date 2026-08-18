@@ -22,6 +22,7 @@ def write_message(message: RpcResponse | RpcNotification) -> None:
 
 
 def emit_notification(method: str, params: dict) -> None:
+    log(f"sidecar emitting: {method} {params.get('text', '')}")
     write_message(RpcNotification(method=method, params=params))
 
 

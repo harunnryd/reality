@@ -77,11 +77,6 @@ export function useLiveMeetingSession(config?: LiveMeetingConfig) {
       void deepgramService.stop();
       void audioService.stopSession();
     }
-
-    return () => {
-      void deepgramService.stop();
-      void audioService.stopSession();
-    };
   }, [isMicActive]);
 
   useEffect(() => {
@@ -89,6 +84,7 @@ export function useLiveMeetingSession(config?: LiveMeetingConfig) {
     let unlistenSuggestion: (() => void) | undefined;
 
     listen<{ text: string; speaker?: string }>("transcript.delta", (event) => {
+      console.log("[useLiveMeetingSession] received transcript.delta:", event);
       if (event.payload?.text) {
         handleUtteranceUpdate(event.payload.speaker || "Speaker", event.payload.text, "speaker");
       }

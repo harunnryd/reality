@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Flex, Box, Heading, Text, TextField, Button, Callout } from "@radix-ui/themes";
 import { motion } from "framer-motion";
-import { Key, Lock, ArrowRight, AlertCircle, ExternalLink, ShieldCheck, Mic, Sparkles } from "lucide-react";
+import { Key, Lock, ArrowRight, AlertCircle, ExternalLink, ShieldCheck } from "lucide-react";
 import { containerVariants, itemVariants } from "@/styles/animations";
 import { typography } from "@/styles/theme";
 
@@ -65,17 +65,17 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
                 color: "var(--gray-12)",
               }}
             >
-              Connect Speech &amp; AI
+              API Keys
             </Heading>
             <Text
               as="p"
               style={{
                 ...typography.scale.bodyMedium,
-                marginBottom: 14,
+                marginBottom: 16,
                 color: "var(--gray-11)",
               }}
             >
-              Configure ultra-fast live speech transcription and meeting AI reasoning.
+              Set up your keys for live speech transcription and AI assistant.
             </Text>
           </motion.div>
 
@@ -83,19 +83,8 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
             <Flex direction="column" gap="3">
               <Box>
                 <Flex align="center" justify="between" style={{ marginBottom: 4 }}>
-                  <label
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 700,
-                      color: "var(--gray-11)",
-                      textTransform: "uppercase",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                    }}
-                  >
-                    <Mic size={12} color="#0071E3" />
-                    Deepgram Nova-2 API Key
+                  <label style={{ fontSize: 11, fontWeight: 600, color: "var(--gray-11)" }}>
+                    DEEPGRAM API KEY
                   </label>
                   <a
                     href="https://console.deepgram.com/signup"
@@ -107,13 +96,13 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
                       textDecoration: "none",
                       display: "inline-flex",
                       alignItems: "center",
-                      gap: 3,
+                      gap: 2,
                       fontWeight: 500,
                       cursor: "pointer",
                     }}
                   >
-                    <span>Get $200 Free</span>
-                    <ExternalLink size={11} />
+                    <span>Get key</span>
+                    <ExternalLink size={10} />
                   </a>
                 </Flex>
                 <TextField.Root
@@ -135,25 +124,14 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
                   </TextField.Slot>
                 </TextField.Root>
                 <Text style={{ fontSize: 10.5, color: "var(--gray-10)", marginTop: 2, display: "block" }}>
-                  Powers real-time speech transcription (&lt;180ms p99)
+                  Used for real-time speech transcription
                 </Text>
               </Box>
 
               <Box>
                 <Flex align="center" justify="between" style={{ marginBottom: 4 }}>
-                  <label
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 700,
-                      color: "var(--gray-11)",
-                      textTransform: "uppercase",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                    }}
-                  >
-                    <Sparkles size={12} color="#8E8E93" />
-                    OpenAI / Anthropic Key
+                  <label style={{ fontSize: 11, fontWeight: 600, color: "var(--gray-11)" }}>
+                    OPENAI / ANTHROPIC KEY
                   </label>
                   <a
                     href="https://platform.openai.com/api-keys"
@@ -165,13 +143,13 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
                       textDecoration: "none",
                       display: "inline-flex",
                       alignItems: "center",
-                      gap: 3,
+                      gap: 2,
                       fontWeight: 500,
                       cursor: "pointer",
                     }}
                   >
-                    <span>Get OpenAI Key</span>
-                    <ExternalLink size={11} />
+                    <span>Get key</span>
+                    <ExternalLink size={10} />
                   </a>
                 </Flex>
                 <TextField.Root
@@ -197,7 +175,7 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
                 <Flex align="center" gap="1" style={{ marginTop: 2 }}>
                   <ShieldCheck size={11} color="var(--gray-9)" />
                   <Text style={{ fontSize: 10.5, color: "var(--gray-10)" }}>
-                    Encrypted inside macOS Keychain
+                    Stored securely in macOS Keychain
                   </Text>
                 </Flex>
               </Box>
@@ -250,7 +228,7 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
                   cursor: "pointer",
                 }}
               >
-                Skip for later
+                Skip for now
               </Button>
             )}
 
@@ -269,7 +247,7 @@ export const ApiKeyStage: React.FC<ApiKeyStageProps> = ({
                 cursor: isSaving ? "default" : "pointer",
               }}
             >
-              {isSaving ? "Connecting…" : "Continue"}
+              {isSaving ? "Saving…" : "Continue"}
               <ArrowRight size={14} />
             </Button>
           </Flex>

@@ -11,10 +11,6 @@ import {
   ExternalLink,
   Eye,
   EyeOff,
-  Lock,
-  Radio,
-  Volume2,
-  Sparkles,
 } from "lucide-react";
 import { PERSONA_CONFIGS } from "../services/meetingsService";
 import { PersonaMode } from "../types";
@@ -37,7 +33,7 @@ export interface SettingsModalProps {
   onClose: () => void;
 }
 
-type SettingsTab = "audio" | "models" | "shortcuts" | "stealth" | "about";
+type SettingsTab = "audio" | "models" | "shortcuts" | "privacy" | "about";
 
 const AppleSwitch: React.FC<{
   checked: boolean;
@@ -95,11 +91,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const [adaptiveNoiseTracking, setAdaptiveNoiseTracking] = React.useState(true);
   const [selectedMic, setSelectedMic] = React.useState("default");
   const [availableMics, setAvailableMics] = React.useState<AudioInputDevice[]>([
-    { id: "default", name: "Default System Microphone", is_default: true },
+    { id: "default", name: "Default Microphone", is_default: true },
   ]);
   const [selectedSpeaker, setSelectedSpeaker] = React.useState("default_speaker");
   const [availableSpeakers, setAvailableSpeakers] = React.useState<AudioOutputDevice[]>([
-    { id: "default_speaker", name: "MacBook Pro Speakers", is_default: true },
+    { id: "default_speaker", name: "Default Speakers", is_default: true },
   ]);
   const [shortcutsList, setShortcutsList] = React.useState<ShortcutDefinition[]>([]);
   const [sidecarStatus, setSidecarStatus] = React.useState<SidecarHealthStatus | null>(null);
@@ -160,11 +156,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   if (!isOpen) return null;
 
   const navItems = [
-    { id: "audio" as SettingsTab, label: "Speech & Audio", icon: Mic, badge: deepgramApiKey ? "Active" : undefined },
-    { id: "models" as SettingsTab, label: "AI Intelligence", icon: Cpu, badge: hasStoredKey ? "Keychain" : undefined },
+    { id: "audio" as SettingsTab, label: "Audio", icon: Mic },
+    { id: "models" as SettingsTab, label: "AI Models", icon: Cpu },
     { id: "shortcuts" as SettingsTab, label: "Shortcuts", icon: Keyboard },
-    { id: "stealth" as SettingsTab, label: "Stealth & Privacy", icon: Shield },
-    { id: "about" as SettingsTab, label: "System Health", icon: Info },
+    { id: "privacy" as SettingsTab, label: "Privacy", icon: Shield },
+    { id: "about" as SettingsTab, label: "About", icon: Info },
   ];
 
   return (
@@ -178,7 +174,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "rgba(0, 0, 0, 0.4)",
+          backgroundColor: "rgba(0, 0, 0, 0.35)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
           padding: 24,
@@ -187,19 +183,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         onClick={onClose}
       >
         <motion.div
-          initial={{ opacity: 0, scale: 0.97, y: 10 }}
+          initial={{ opacity: 0, scale: 0.97, y: 8 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.97, y: 10 }}
-          transition={{ duration: 0.18, ease: springEase }}
+          exit={{ opacity: 0, scale: 0.97, y: 8 }}
+          transition={{ duration: 0.16, ease: springEase }}
           onClick={(e) => e.stopPropagation()}
           style={{
             width: "100%",
-            maxWidth: 720,
-            height: 490,
+            maxWidth: 620,
+            height: 440,
             backgroundColor: "#FFFFFF",
-            borderRadius: 16,
-            border: "1px solid rgba(0, 0, 0, 0.1)",
-            boxShadow: "0 32px 64px -16px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.04)",
+            borderRadius: 12,
+            border: "1px solid rgba(0, 0, 0, 0.12)",
+            boxShadow: "0 24px 48px -12px rgba(0, 0, 0, 0.25)",
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
@@ -210,39 +206,23 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              padding: "12px 16px",
-              borderBottom: "1px solid rgba(0, 0, 0, 0.06)",
-              backgroundColor: "rgba(249, 249, 251, 0.95)",
+              padding: "10px 14px",
+              borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
+              backgroundColor: "#F6F6F6",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div
-                style={{
-                  width: 22,
-                  height: 22,
-                  borderRadius: 6,
-                  backgroundColor: "#0071E3",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  boxShadow: "0 2px 4px rgba(0, 113, 227, 0.3)",
-                }}
-              >
-                <Sparkles size={12} color="#FFFFFF" />
-              </div>
-              <span style={{ fontSize: 13, fontWeight: 700, color: "#1D1D1F", letterSpacing: -0.2 }}>
-                Reality Preferences
-              </span>
-            </div>
+            <span style={{ fontSize: 13, fontWeight: 600, color: "#1D1D1F" }}>
+              Settings
+            </span>
 
             <button
               onClick={onClose}
               style={{
-                width: 22,
-                height: 22,
+                width: 20,
+                height: 20,
                 borderRadius: "50%",
                 border: "none",
-                backgroundColor: "rgba(0, 0, 0, 0.05)",
+                backgroundColor: "rgba(0, 0, 0, 0.06)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -250,21 +230,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 color: "#86868B",
               }}
             >
-              <X size={12} />
+              <X size={11} />
             </button>
           </div>
 
           <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
             <div
               style={{
-                width: 215,
+                width: 170,
                 flexShrink: 0,
-                borderRight: "1px solid rgba(0, 0, 0, 0.06)",
-                backgroundColor: "rgba(247, 247, 249, 0.7)",
-                padding: "10px 8px",
+                borderRight: "1px solid rgba(0, 0, 0, 0.08)",
+                backgroundColor: "#FBFBFD",
+                padding: "8px 6px",
                 display: "flex",
                 flexDirection: "column",
-                gap: 2,
+                gap: 1,
               }}
             >
               {navItems.map((item) => {
@@ -277,38 +257,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      justifyContent: "space-between",
-                      padding: "8px 10px",
-                      borderRadius: 8,
-                      backgroundColor: isSelected ? "rgba(0, 113, 227, 0.12)" : "transparent",
-                      color: isSelected ? "#0071E3" : "#3A3A3C",
+                      gap: 8,
+                      padding: "6px 10px",
+                      borderRadius: 6,
+                      backgroundColor: isSelected ? "#0071E3" : "transparent",
+                      color: isSelected ? "#FFFFFF" : "#1D1D1F",
                       cursor: "pointer",
-                      fontWeight: isSelected ? 600 : 500,
+                      fontWeight: isSelected ? 500 : 400,
                       fontSize: 12.5,
-                      transition: "all 120ms ease",
+                      transition: "all 100ms ease",
                     }}
                   >
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, whiteSpace: "nowrap" }}>
-                      <Icon size={14} color={isSelected ? "#0071E3" : "#86868B"} />
-                      <span>{item.label}</span>
-                    </div>
-                    {item.badge && (
-                      <span
-                        style={{
-                          fontSize: 9.5,
-                          fontWeight: 700,
-                          padding: "1px 6px",
-                          borderRadius: 4,
-                          backgroundColor: isSelected ? "#0071E3" : "rgba(0, 0, 0, 0.06)",
-                          color: isSelected ? "#FFFFFF" : "#86868B",
-                          whiteSpace: "nowrap",
-                          flexShrink: 0,
-                          marginLeft: 6,
-                        }}
-                      >
-                        {item.badge}
-                      </span>
-                    )}
+                    <Icon size={14} color={isSelected ? "#FFFFFF" : "#86868B"} />
+                    <span>{item.label}</span>
                   </div>
                 );
               })}
@@ -317,124 +278,92 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             <div
               style={{
                 flex: 1,
-                padding: "18px 22px",
+                padding: "16px 18px",
                 overflowY: "auto",
                 backgroundColor: "#FFFFFF",
               }}
             >
               {activeTab === "audio" && (
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                   <div>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <label style={{ fontSize: 11, fontWeight: 700, color: "#86868B", textTransform: "uppercase" }}>
-                        Live Speech-To-Text Engine
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                      <label style={{ fontSize: 11, fontWeight: 600, color: "#86868B" }}>
+                        DEEPGRAM API KEY
                       </label>
-                      <span style={{ fontSize: 10.5, color: "#0071E3", fontWeight: 600 }}>
-                        &lt;180ms p99 Live Streaming
-                      </span>
+                      <a
+                        href="https://console.deepgram.com/signup"
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          fontSize: 11,
+                          color: "#0071E3",
+                          textDecoration: "none",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 2,
+                        }}
+                      >
+                        <span>Get key</span>
+                        <ExternalLink size={10} />
+                      </a>
                     </div>
-                    <div
-                      style={{
-                        marginTop: 6,
-                        padding: "10px 12px",
-                        borderRadius: 10,
-                        backgroundColor: "#F5F5F7",
-                        border: "1px solid rgba(0, 0, 0, 0.06)",
-                      }}
-                    >
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <Radio size={13} color="#0071E3" />
-                          <span style={{ fontSize: 12, fontWeight: 600, color: "#1D1D1F" }}>
-                            Deepgram Nova-2 (Python Sidecar WebSocket)
-                          </span>
-                        </div>
-                        <a
-                          href="https://console.deepgram.com/signup"
-                          target="_blank"
-                          rel="noreferrer"
-                          style={{
-                            fontSize: 10.5,
-                            color: "#0071E3",
-                            textDecoration: "none",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 3,
-                            fontWeight: 600,
-                          }}
-                        >
-                          <span>Get $200 Free</span>
-                          <ExternalLink size={10} />
-                        </a>
-                      </div>
-                      <div style={{ position: "relative" }}>
-                        <input
-                          type={showDeepgramKey ? "text" : "password"}
-                          placeholder="8aa709d649248fe8d11eec..."
-                          value={deepgramApiKey}
-                          onChange={(e) => setDeepgramApiKey(e.target.value)}
-                          style={{
-                            width: "100%",
-                            padding: "6px 28px 6px 8px",
-                            borderRadius: 6,
-                            border: "1px solid rgba(0, 0, 0, 0.1)",
-                            fontSize: 11.5,
-                            backgroundColor: "#FFFFFF",
-                            outline: "none",
-                            fontFamily: "ui-monospace, monospace",
-                          }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowDeepgramKey(!showDeepgramKey)}
-                          style={{
-                            position: "absolute",
-                            right: 6,
-                            top: "50%",
-                            transform: "translateY(-50%)",
-                            background: "none",
-                            border: "none",
-                            cursor: "pointer",
-                            color: "#86868B",
-                          }}
-                        >
-                          {showDeepgramKey ? <EyeOff size={12} /> : <Eye size={12} />}
-                        </button>
-                      </div>
+                    <div style={{ position: "relative" }}>
+                      <input
+                        type={showDeepgramKey ? "text" : "password"}
+                        placeholder="8aa709d649248fe8d11eec..."
+                        value={deepgramApiKey}
+                        onChange={(e) => setDeepgramApiKey(e.target.value)}
+                        style={{
+                          width: "100%",
+                          padding: "6px 26px 6px 8px",
+                          borderRadius: 6,
+                          border: "1px solid rgba(0, 0, 0, 0.15)",
+                          fontSize: 12,
+                          backgroundColor: "#FFFFFF",
+                          outline: "none",
+                          fontFamily: "ui-monospace, monospace",
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowDeepgramKey(!showDeepgramKey)}
+                        style={{
+                          position: "absolute",
+                          right: 6,
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          color: "#86868B",
+                        }}
+                      >
+                        {showDeepgramKey ? <EyeOff size={12} /> : <Eye size={12} />}
+                      </button>
                     </div>
+                    <span style={{ fontSize: 10.5, color: "#86868B", marginTop: 3, display: "block" }}>
+                      Used for live speech-to-text
+                    </span>
                   </div>
 
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: "#86868B", textTransform: "uppercase" }}>
-                      Hardware Devices
+                  <div style={{ borderTop: "1px solid rgba(0, 0, 0, 0.06)", paddingTop: 12 }}>
+                    <label style={{ fontSize: 11, fontWeight: 600, color: "#86868B", display: "block", marginBottom: 6 }}>
+                      DEVICES
                     </label>
-                    <div
-                      style={{
-                        marginTop: 6,
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 8,
-                        padding: "10px 12px",
-                        borderRadius: 10,
-                        backgroundColor: "#F5F5F7",
-                        border: "1px solid rgba(0, 0, 0, 0.06)",
-                      }}
-                    >
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <Mic size={13} color="#5856D6" />
-                          <span style={{ fontSize: 12, color: "#1D1D1F" }}>Microphone</span>
-                        </div>
+                        <span style={{ fontSize: 12, color: "#1D1D1F" }}>Microphone</span>
                         <select
                           value={selectedMic}
                           onChange={(e) => setSelectedMic(e.target.value)}
                           style={{
-                            padding: "4px 8px",
+                            padding: "3px 6px",
                             borderRadius: 6,
-                            border: "1px solid rgba(0, 0, 0, 0.1)",
+                            border: "1px solid rgba(0, 0, 0, 0.15)",
                             fontSize: 11.5,
                             backgroundColor: "#FFFFFF",
                             outline: "none",
+                            maxWidth: 200,
                           }}
                         >
                           {availableMics.map((m) => (
@@ -446,20 +375,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       </div>
 
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <Volume2 size={13} color="#34C759" />
-                          <span style={{ fontSize: 12, color: "#1D1D1F" }}>Speaker (System Loopback)</span>
-                        </div>
+                        <span style={{ fontSize: 12, color: "#1D1D1F" }}>Speaker</span>
                         <select
                           value={selectedSpeaker}
                           onChange={(e) => setSelectedSpeaker(e.target.value)}
                           style={{
-                            padding: "4px 8px",
+                            padding: "3px 6px",
                             borderRadius: 6,
-                            border: "1px solid rgba(0, 0, 0, 0.1)",
+                            border: "1px solid rgba(0, 0, 0, 0.15)",
                             fontSize: 11.5,
                             backgroundColor: "#FFFFFF",
                             outline: "none",
+                            maxWidth: 200,
                           }}
                         >
                           {availableSpeakers.map((s) => (
@@ -472,35 +399,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     </div>
                   </div>
 
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: "#86868B", textTransform: "uppercase" }}>
-                      Signal Processing
+                  <div style={{ borderTop: "1px solid rgba(0, 0, 0, 0.06)", paddingTop: 12 }}>
+                    <label style={{ fontSize: 11, fontWeight: 600, color: "#86868B", display: "block", marginBottom: 6 }}>
+                      VOICE PROCESSING
                     </label>
-                    <div
-                      style={{
-                        marginTop: 6,
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 10,
-                        padding: "10px 12px",
-                        borderRadius: 10,
-                        backgroundColor: "#F5F5F7",
-                        border: "1px solid rgba(0, 0, 0, 0.06)",
-                      }}
-                    >
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <div>
-                          <div style={{ fontSize: 12, fontWeight: 500, color: "#1D1D1F" }}>VAD Silence Suppression</div>
-                          <div style={{ fontSize: 10.5, color: "#86868B" }}>Pause audio streaming during speech pauses</div>
-                        </div>
+                        <span style={{ fontSize: 12, color: "#1D1D1F" }}>Silence detection (VAD)</span>
                         <AppleSwitch checked={vadThreshold} onChange={setVadThreshold} ariaLabel="VAD" />
                       </div>
 
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <div>
-                          <div style={{ fontSize: 12, fontWeight: 500, color: "#1D1D1F" }}>Adaptive Noise Tracking</div>
-                          <div style={{ fontSize: 10.5, color: "#86868B" }}>Dynamically cancel background noise</div>
-                        </div>
+                        <span style={{ fontSize: 12, color: "#1D1D1F" }}>Noise suppression</span>
                         <AppleSwitch checked={adaptiveNoiseTracking} onChange={setAdaptiveNoiseTracking} ariaLabel="Noise Tracking" />
                       </div>
                     </div>
@@ -509,80 +419,66 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               )}
 
               {activeTab === "models" && (
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                   <div>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <label style={{ fontSize: 11, fontWeight: 700, color: "#86868B", textTransform: "uppercase" }}>
-                        BYOK OpenAI / Anthropic Key
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                      <label style={{ fontSize: 11, fontWeight: 600, color: "#86868B" }}>
+                        OPENAI / ANTHROPIC KEY
                       </label>
                       {hasStoredKey && (
-                        <span style={{ fontSize: 10.5, color: "#34C759", fontWeight: 600, display: "flex", alignItems: "center", gap: 3 }}>
-                          <Check size={11} /> Keychain Active
+                        <span style={{ fontSize: 10.5, color: "#34C759", fontWeight: 500, display: "flex", alignItems: "center", gap: 2 }}>
+                          <Check size={11} /> Saved in Keychain
                         </span>
                       )}
                     </div>
-                    <div
-                      style={{
-                        marginTop: 6,
-                        padding: "10px 12px",
-                        borderRadius: 10,
-                        backgroundColor: "#F5F5F7",
-                        border: "1px solid rgba(0, 0, 0, 0.06)",
-                      }}
-                    >
-                      <div style={{ position: "relative" }}>
-                        <input
-                          type={showCustomKey ? "text" : "password"}
-                          placeholder={hasStoredKey ? "••••••••••••••••••••••••" : "sk-ant-... or sk-proj-..."}
-                          value={customApiKey}
-                          onChange={(e) => setCustomApiKey(e.target.value)}
-                          style={{
-                            width: "100%",
-                            padding: "6px 28px 6px 8px",
-                            borderRadius: 6,
-                            border: "1px solid rgba(0, 0, 0, 0.1)",
-                            fontSize: 11.5,
-                            backgroundColor: "#FFFFFF",
-                            outline: "none",
-                            fontFamily: "ui-monospace, monospace",
-                          }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowCustomKey(!showCustomKey)}
-                          style={{
-                            position: "absolute",
-                            right: 6,
-                            top: "50%",
-                            transform: "translateY(-50%)",
-                            background: "none",
-                            border: "none",
-                            cursor: "pointer",
-                            color: "#86868B",
-                          }}
-                        >
-                          {showCustomKey ? <EyeOff size={12} /> : <Eye size={12} />}
-                        </button>
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 6 }}>
-                        <Lock size={11} color="#86868B" />
-                        <span style={{ fontSize: 10.5, color: "#86868B" }}>
-                          Encrypted securely inside macOS Keychain via keyring
-                        </span>
-                      </div>
+                    <div style={{ position: "relative" }}>
+                      <input
+                        type={showCustomKey ? "text" : "password"}
+                        placeholder={hasStoredKey ? "••••••••••••••••••••••••" : "sk-..."}
+                        value={customApiKey}
+                        onChange={(e) => setCustomApiKey(e.target.value)}
+                        style={{
+                          width: "100%",
+                          padding: "6px 26px 6px 8px",
+                          borderRadius: 6,
+                          border: "1px solid rgba(0, 0, 0, 0.15)",
+                          fontSize: 12,
+                          backgroundColor: "#FFFFFF",
+                          outline: "none",
+                          fontFamily: "ui-monospace, monospace",
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowCustomKey(!showCustomKey)}
+                        style={{
+                          position: "absolute",
+                          right: 6,
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          color: "#86868B",
+                        }}
+                      >
+                        {showCustomKey ? <EyeOff size={12} /> : <Eye size={12} />}
+                      </button>
                     </div>
+                    <span style={{ fontSize: 10.5, color: "#86868B", marginTop: 3, display: "block" }}>
+                      Used for meeting reasoning and summaries
+                    </span>
                   </div>
 
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: "#86868B", textTransform: "uppercase" }}>
-                      Assistant Persona Profile
+                  <div style={{ borderTop: "1px solid rgba(0, 0, 0, 0.06)", paddingTop: 12 }}>
+                    <label style={{ fontSize: 11, fontWeight: 600, color: "#86868B", display: "block", marginBottom: 6 }}>
+                      DEFAULT PERSONA
                     </label>
                     <div
                       style={{
-                        marginTop: 6,
                         display: "grid",
                         gridTemplateColumns: "1fr 1fr",
-                        gap: 8,
+                        gap: 6,
                       }}
                     >
                       {Object.entries(PERSONA_CONFIGS).map(([key, p]) => {
@@ -592,17 +488,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                             key={key}
                             onClick={() => setDefaultPersona(key as PersonaMode)}
                             style={{
-                              padding: "8px 10px",
-                              borderRadius: 8,
-                              border: `1px solid ${isSel ? "#0071E3" : "rgba(0, 0, 0, 0.08)"}`,
-                              backgroundColor: isSel ? "rgba(0, 113, 227, 0.04)" : "#F5F5F7",
+                              padding: "7px 9px",
+                              borderRadius: 6,
+                              border: `1px solid ${isSel ? "#0071E3" : "rgba(0, 0, 0, 0.1)"}`,
+                              backgroundColor: isSel ? "rgba(0, 113, 227, 0.06)" : "#FAFAFA",
                               cursor: "pointer",
                             }}
                           >
-                            <div style={{ fontSize: 12, fontWeight: 600, color: isSel ? "#0071E3" : "#1D1D1F" }}>
+                            <div style={{ fontSize: 12, fontWeight: 500, color: isSel ? "#0071E3" : "#1D1D1F" }}>
                               {p.label}
                             </div>
-                            <div style={{ fontSize: 10.5, color: "#86868B", marginTop: 2 }}>{p.description}</div>
+                            <div style={{ fontSize: 10.5, color: "#86868B", marginTop: 1 }}>{p.description}</div>
                           </div>
                         );
                       })}
@@ -612,14 +508,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               )}
 
               {activeTab === "shortcuts" && (
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: "#86868B", display: "block", marginBottom: 2 }}>
+                    GLOBAL SHORTCUTS
+                  </label>
                   {(shortcutsList.length > 0
                     ? shortcutsList
                     : [
-                        { id: "toggle_hud", name: "Toggle Meeting HUD Overlay", key_combination: "⌘ + \\", is_enabled: true },
-                        { id: "capture_slide", name: "Capture Slide OCR Snapshot", key_combination: "⌘ + S", is_enabled: true },
-                        { id: "spotlight_search", name: "Open Spotlight Launcher", key_combination: "⌘ + K", is_enabled: true },
-                        { id: "instant_assist", name: "Trigger Instant AI Suggestion", key_combination: "⌘ + ↵", is_enabled: true },
+                        { id: "toggle_hud", name: "Toggle HUD", key_combination: "⌘ + \\", is_enabled: true },
+                        { id: "capture_slide", name: "Capture Screen", key_combination: "⌘ + S", is_enabled: true },
+                        { id: "spotlight_search", name: "Spotlight Launcher", key_combination: "⌘ + K", is_enabled: true },
+                        { id: "instant_assist", name: "Instant Suggestion", key_combination: "⌘ + ↵", is_enabled: true },
                       ]
                   ).map((sc) => (
                     <div
@@ -628,40 +527,44 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
-                        padding: "8px 12px",
-                        borderRadius: 8,
-                        backgroundColor: "#F5F5F7",
-                        border: "1px solid rgba(0, 0, 0, 0.04)",
+                        padding: "7px 10px",
+                        borderRadius: 6,
+                        backgroundColor: "#F9F9FB",
+                        border: "1px solid rgba(0, 0, 0, 0.05)",
                       }}
                     >
-                      <span style={{ fontSize: 12, color: "#1D1D1F", fontWeight: 500 }}>{sc.name}</span>
-                      <kbd
-                        style={{
-                          padding: "2px 7px",
-                          borderRadius: 5,
-                          backgroundColor: "#FFFFFF",
-                          border: "1px solid rgba(0, 0, 0, 0.12)",
-                          fontSize: 11,
-                          fontFamily: "ui-monospace, monospace",
-                          color: "#1D1D1F",
-                          fontWeight: 600,
-                          boxShadow: "0 1px 1px rgba(0, 0, 0, 0.05)",
-                        }}
-                      >
-                        {sc.key_combination}
-                      </kbd>
+                      <span style={{ fontSize: 12, color: "#1D1D1F" }}>{sc.name}</span>
+                      <div style={{ display: "flex", gap: 3 }}>
+                        {sc.key_combination.split("+").map((k, i) => (
+                          <kbd
+                            key={i}
+                            style={{
+                              padding: "2px 6px",
+                              borderRadius: 4,
+                              backgroundColor: "#FFFFFF",
+                              border: "1px solid rgba(0, 0, 0, 0.15)",
+                              fontSize: 11,
+                              fontFamily: "ui-monospace, monospace",
+                              color: "#1D1D1F",
+                              fontWeight: 500,
+                            }}
+                          >
+                            {k.trim()}
+                          </kbd>
+                        ))}
+                      </div>
                     </div>
                   ))}
                 </div>
               )}
 
-              {activeTab === "stealth" && (
+              {activeTab === "privacy" && (
                 <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                   <div>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: "#86868B", textTransform: "uppercase" }}>
-                      Process Title Disguise
+                    <label style={{ fontSize: 11, fontWeight: 600, color: "#86868B", display: "block", marginBottom: 6 }}>
+                      PROCESS TITLE DISGUISE
                     </label>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                       {availableDisguises.map((d) => {
                         const isSel = selectedDisguise === d;
                         return (
@@ -672,11 +575,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                               padding: "5px 10px",
                               borderRadius: 6,
                               fontSize: 11.5,
-                              fontWeight: 500,
                               cursor: "pointer",
-                              border: `1px solid ${isSel ? "#0071E3" : "rgba(0, 0, 0, 0.08)"}`,
-                              backgroundColor: isSel ? "#0071E3" : "#F5F5F7",
+                              border: `1px solid ${isSel ? "#0071E3" : "rgba(0, 0, 0, 0.1)"}`,
+                              backgroundColor: isSel ? "#0071E3" : "#FAFAFA",
                               color: isSel ? "#FFFFFF" : "#1D1D1F",
+                              fontWeight: isSel ? 500 : 400,
                             }}
                           >
                             {d}
@@ -686,22 +589,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     </div>
                   </div>
 
-                  <div
-                    style={{
-                      padding: "10px 12px",
-                      borderRadius: 10,
-                      backgroundColor: "#F5F5F7",
-                      border: "1px solid rgba(0, 0, 0, 0.06)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontSize: 12, fontWeight: 500, color: "#1D1D1F" }}>Auto-Wipe RAM on Finish</div>
-                      <div style={{ fontSize: 10.5, color: "#86868B" }}>Clear memory buffer immediately upon meeting conclusion</div>
+                  <div style={{ borderTop: "1px solid rgba(0, 0, 0, 0.06)", paddingTop: 12 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontSize: 12, color: "#1D1D1F" }}>Auto-clear memory on close</div>
+                        <div style={{ fontSize: 10.5, color: "#86868B" }}>Clears local buffers when meeting ends</div>
+                      </div>
+                      <AppleSwitch checked={wipeRamOnFinish} onChange={setWipeRamOnFinish} ariaLabel="Clear RAM" />
                     </div>
-                    <AppleSwitch checked={wipeRamOnFinish} onChange={setWipeRamOnFinish} ariaLabel="Wipe RAM" />
                   </div>
                 </div>
               )}
@@ -710,45 +611,44 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   <div
                     style={{
-                      padding: "12px",
-                      borderRadius: 10,
-                      backgroundColor: "#F5F5F7",
+                      padding: "10px 12px",
+                      borderRadius: 8,
+                      backgroundColor: "#F9F9FB",
                       border: "1px solid rgba(0, 0, 0, 0.06)",
                     }}
                   >
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "#1D1D1F" }}>Reality v0.1.0</div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: "#1D1D1F" }}>Reality v0.1.0</div>
                     <div style={{ fontSize: 11, color: "#86868B", marginTop: 2 }}>
-                      Autonomous Meeting Intelligence Engine • Apple Silicon Native
+                      macOS Apple Silicon Native
                     </div>
                   </div>
 
                   <div
                     style={{
                       padding: "10px 12px",
-                      borderRadius: 10,
-                      backgroundColor: "#F5F5F7",
+                      borderRadius: 8,
+                      backgroundColor: "#F9F9FB",
                       border: "1px solid rgba(0, 0, 0, 0.06)",
                       display: "flex",
                       flexDirection: "column",
-                      gap: 8,
+                      gap: 6,
                     }}
                   >
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <span style={{ fontSize: 11.5, color: "#1D1D1F" }}>Python Sidecar Orchestrator</span>
-                      <span style={{ fontSize: 11, color: "#34C759", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
-                        <span style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "#34C759" }} />
-                        {sidecarStatus?.is_alive ? "Connected" : "Online"}
+                      <span style={{ fontSize: 12, color: "#1D1D1F" }}>Sidecar</span>
+                      <span style={{ fontSize: 11, color: "#34C759", fontWeight: 500 }}>
+                        {sidecarStatus?.is_alive ? "Connected" : "Ready"}
                       </span>
                     </div>
 
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <span style={{ fontSize: 11.5, color: "#1D1D1F" }}>Native Audio Pipeline (CPAL)</span>
-                      <span style={{ fontSize: 11, color: "#34C759", fontWeight: 600 }}>16kHz Linear16</span>
+                      <span style={{ fontSize: 12, color: "#1D1D1F" }}>Audio Engine</span>
+                      <span style={{ fontSize: 11, color: "#86868B" }}>CPAL 16kHz PCM</span>
                     </div>
 
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <span style={{ fontSize: 11.5, color: "#1D1D1F" }}>Speech Engine</span>
-                      <span style={{ fontSize: 11, color: "#0071E3", fontWeight: 600 }}>Deepgram Nova-2</span>
+                      <span style={{ fontSize: 12, color: "#1D1D1F" }}>STT Provider</span>
+                      <span style={{ fontSize: 11, color: "#86868B" }}>Deepgram Nova-2</span>
                     </div>
                   </div>
                 </div>
@@ -761,29 +661,28 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              padding: "10px 16px",
-              borderTop: "1px solid rgba(0, 0, 0, 0.06)",
-              backgroundColor: "rgba(249, 249, 251, 0.95)",
+              padding: "8px 14px",
+              borderTop: "1px solid rgba(0, 0, 0, 0.08)",
+              backgroundColor: "#F6F6F6",
             }}
           >
             {savedToast ? (
-              <span style={{ fontSize: 11.5, color: "#34C759", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
-                <Check size={13} /> Settings saved to Keychain &amp; Sidecar
+              <span style={{ fontSize: 11.5, color: "#34C759", fontWeight: 500, display: "flex", alignItems: "center", gap: 3 }}>
+                <Check size={12} /> Saved
               </span>
             ) : (
-              <span style={{ fontSize: 10.5, color: "#86868B" }}>Preferences apply in real-time</span>
+              <span />
             )}
 
-            <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", gap: 6 }}>
               <button
                 onClick={onClose}
                 style={{
-                  padding: "5px 12px",
-                  borderRadius: 6,
-                  border: "1px solid rgba(0, 0, 0, 0.12)",
+                  padding: "4px 10px",
+                  borderRadius: 5,
+                  border: "1px solid rgba(0, 0, 0, 0.15)",
                   backgroundColor: "#FFFFFF",
                   fontSize: 11.5,
-                  fontWeight: 500,
                   cursor: "pointer",
                   color: "#1D1D1F",
                 }}
@@ -793,15 +692,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               <button
                 onClick={handleSave}
                 style={{
-                  padding: "5px 16px",
-                  borderRadius: 6,
+                  padding: "4px 14px",
+                  borderRadius: 5,
                   border: "none",
                   backgroundColor: "#0071E3",
                   fontSize: 11.5,
-                  fontWeight: 600,
+                  fontWeight: 500,
                   cursor: "pointer",
                   color: "#FFFFFF",
-                  boxShadow: "0 1px 2px rgba(0, 113, 227, 0.3)",
                 }}
               >
                 Save

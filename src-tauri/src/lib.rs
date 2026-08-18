@@ -36,6 +36,9 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             commands::ping_sidecar,
+            commands::process_ai_utterance,
+            commands::finalize_ai_meeting,
+            commands::reset_ai_session,
             commands::get_sidecar_status,
             commands::list_audio_input_devices,
             commands::list_audio_output_devices,

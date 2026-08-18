@@ -23,6 +23,52 @@ pub async fn ping_sidecar(sidecar: State<'_, Arc<SidecarClient>>, message: Strin
 }
 
 #[tauri::command]
+pub async fn process_ai_utterance(
+    sidecar: State<'_, Arc<SidecarClient>>,
+    session_id: String,
+    speaker: String,
+    text: String,
+    channel: Option<String>,
+    is_interim: Option<bool>,
+) -> Result<Value, String> {
+    sidecar
+        .call(
+            "ai.process_utterance",
+            json!({
+                "session_id": session_id,
+                "speaker": speaker,
+                "text": text,
+                "channel": channel.unwrap_or_else(|| "speaker".to_string()),
+                "is_interim": is_interim.unwrap_or(false),
+            }),
+        )
+        .await
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub async fn finalize_ai_meeting(
+    sidecar: State<'_, Arc<SidecarClient>>,
+    session_id: String,
+) -> Result<Value, String> {
+    sidecar
+        .call("ai.finalize_meeting", json!({ "session_id": session_id }))
+        .await
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub async fn reset_ai_session(
+    sidecar: State<'_, Arc<SidecarClient>>,
+    session_id: String,
+) -> Result<Value, String> {
+    sidecar
+        .call("ai.reset_session", json!({ "session_id": session_id }))
+        .await
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 pub async fn get_sidecar_status(
     supervisor: State<'_, Arc<SidecarSupervisor>>,
 ) -> Result<SidecarHealthStatus, String> {
